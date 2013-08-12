@@ -8,11 +8,11 @@ using System.Collections;
 
 public class MyCommand : Kitware.VTK.vtkCommand
 {
-    public override void Execute(
-        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.CustomMarshaler,
-        MarshalTypeRef = typeof(Kitware.VTK.vtkObjectMarshaler))]
-        Kitware.VTK.vtkObject caller, uint eventId, System.IntPtr callData)
-    {
-        Debug.Log("Executed!");
-    }
+	public override void Execute(
+		[System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.CustomMarshaler,
+		MarshalTypeRef = typeof(Kitware.VTK.vtkObjectMarshaler))]
+		Kitware.VTK.vtkObject caller, uint eventId, System.IntPtr callData)
+	{
+		Debug.Log("Executed!");
+	}
 }
