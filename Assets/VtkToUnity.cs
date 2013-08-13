@@ -4,7 +4,7 @@ using System.Collections;
 public class VtkToUnity
 {
 	Mesh mesh;
-	GameObject go;
+	public GameObject go;
 	Kitware.VTK.vtkPolyDataAlgorithm pda;
 	Kitware.VTK.vtkTriangleFilter triangleFilter;
 	string name;
@@ -58,6 +58,9 @@ public class VtkToUnity
 
 	void PolyDataToMesh()
 	{
+		// mesh.MarkDynamic();
+		mesh.Clear();
+
 		triangleFilter.Update();
 		Kitware.VTK.vtkPolyData pd = triangleFilter.GetOutput();
 
@@ -70,6 +73,7 @@ public class VtkToUnity
 			// Flip z-up to y-up
 			vertices[i] = new Vector3(-(float)pnt[0], (float)pnt[2], (float)pnt[1]);
 		}
+		mesh.vertices = vertices;
 
 		// Triangles / Cells
 		int numTriangles = pd.GetNumberOfPolys();
@@ -87,12 +91,27 @@ public class VtkToUnity
 
 				++prim;
 			}
-
 		}
-		// mesh.MarkDynamic();
-		mesh.Clear();
-		mesh.vertices = vertices;
 		mesh.triangles = triangles;
+
+		// Texture coordinates
+		Vector2[] uvs;
+		int numCoords = 0;
+		Kitware.VTK.vtkDataArray vtkTexCoords = pd.GetPointData().GetTCoords();
+		if (vtkTexCoords != null)
+		{
+			numCoords = vtkTexCoords.GetNumberOfTuples();
+			uvs = new Vector2[numCoords];
+			for (int i = 0; i < numCoords; ++i)
+			{
+				double[] texCoords = vtkTexCoords.GetTuple2(i);
+				uvs[i] = new Vector2((float)texCoords[0], (float)texCoords[1]);
+			}
+			mesh.uv = uvs;
+		}
+
+		Debug.Log(name + " - Vertices: " + numPoints + ", triangle: " + numTriangles + ", UVs: " + numCoords);
+
 		mesh.RecalculateNormals();
 		mesh.RecalculateBounds();
 		//mesh.Optimize();
