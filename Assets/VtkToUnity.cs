@@ -5,36 +5,15 @@ public class VtkToUnity
 {
 	Mesh mesh;
 	public GameObject go;
-	Kitware.VTK.vtkPolyDataAlgorithm pda;
 	Kitware.VTK.vtkTriangleFilter triangleFilter;
 	string name;
 
-	public VtkToUnity(Kitware.VTK.vtkPolyDataAlgorithm pda, string name)
+	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)
 	{
 		this.name = name;
-		this.pda = pda;
 		this.mesh = new Mesh();
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
-		triangleFilter.SetInputConnection(pda.GetOutputPort());
-		CreateGameObject();
-	}
-
-	public VtkToUnity(string filename)
-	{
-		string filepath = Application.dataPath + "/" + filename;
-		filepath = filepath.Replace("/", "\\");
-		Kitware.VTK.vtkXMLPolyDataReader reader = Kitware.VTK.vtkXMLPolyDataReader.New();
-		if (reader.CanReadFile(filepath) == 0)
-		{
-			Debug.Log(filepath + " could not be loaded by Vtk!");
-			return;
-		}
-		name = filename;
-		reader.SetFileName(filepath);
-		reader.Update();
-		this.mesh = new Mesh();
-		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
-		triangleFilter.SetInputConnection(reader.GetOutputPort());
+		triangleFilter.SetInputConnection(outputPort);
 		CreateGameObject();
 	}
 

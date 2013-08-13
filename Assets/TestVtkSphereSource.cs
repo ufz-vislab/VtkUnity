@@ -20,7 +20,7 @@ public class TestVtkSphereSource : MonoBehaviour
 		SphereSource.SetRadius(1);
 		SphereSource.Update();
 
-		vtkToUnity = new VtkToUnity(SphereSource, "VTK Sphere Source");
+		vtkToUnity = new VtkToUnity(SphereSource.GetOutputPort(), "VTK Sphere Source");
 	}
 
 	void Update()
