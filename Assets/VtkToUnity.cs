@@ -86,11 +86,10 @@ public class VtkToUnity
 			lines.InitTraversal();
 			while (lines.GetNextCell(pts) != 0)
 			{
-				int numPointsInLine = pts.GetNumberOfIds();
-				Vector3[] linePoints = new Vector3[numPointsInLine];
-				for (int i = 0; i < numPointsInLine; ++i)
-					linePoints[i] = vertices[pts.GetId(i)];
-				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", linePoints, Color.red, null, 1.0f, Vectrosity.LineType.Continuous);
+				Vector3[] linePoints = new Vector3[2];
+				linePoints[0] = vertices[pts.GetId(0)];
+				linePoints[1] = vertices[pts.GetId(1)];
+				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", linePoints, Color.red, null, 1.0f);
 				line.Draw3DAuto(go.transform);
 			}
 		}
