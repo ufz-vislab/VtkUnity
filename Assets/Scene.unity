@@ -191,6 +191,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8050ad122f92a941917ba77f19e62e6, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   resolution: 8
 --- !u!114 &1742554051
 MonoBehaviour:
@@ -202,7 +203,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a2ba53d48f014344b693f81598873db, type: 3}
   m_Name: 
-  filename: hasselvorsperre.vtp
+  m_EditorClassIdentifier: 
+  filename: Vtk-Data\Box.vtp
 --- !u!1 &2043393138
 GameObject:
   m_ObjectHideFlags: 0

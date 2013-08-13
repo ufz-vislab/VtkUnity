@@ -8,12 +8,13 @@ using System.Collections;
 public class TestVtkFileReader : MonoBehaviour
 {
 
-	public string filename = "hasselvorsperre.vtp";
+	public string filename = "Box.vtp";
 
 	VtkToUnity vtkToUnity;
 
 	void Start ()
 	{
 		vtkToUnity = new VtkToUnity(filename);
+        vtkToUnity.go.transform.Translate(-2f, 0f, 0f);
 	}
 }

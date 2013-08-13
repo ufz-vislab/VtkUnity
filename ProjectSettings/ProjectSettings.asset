@@ -33,15 +33,18 @@ PlayerSettings:
   use32BitDisplayBuffer: 1
   use24BitDepthBuffer: 0
   defaultIsFullScreen: 0
+  defaultIsNativeResolution: 1
   runInBackground: 0
   captureSingleScreen: 0
   Override IPod Music: 0
+  Prepare IOS For Recording: 0
   enableHWStatistics: 1
   usePlayerLog: 1
   stripPhysics: 0
+  forceSingleInstance: 0
   resizableWindow: 0
   useMacAppStoreValidation: 0
-  xboxSkinOnGPU: 1
+  gpuSkinning: 1
   xboxEnableAvatar: 0
   xboxEnableKinect: 0
   xboxEnableKinectAutoTracking: 0
@@ -67,6 +70,7 @@ PlayerSettings:
     16:9: 1
     Others: 1
   iPhoneBundleIdentifier: com.Company.ProductName
+  productGUID: e611b1c3ad9afd340bfb8214a9509d39
   iPhoneBundleVersion: 1.0
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 6
@@ -134,6 +138,7 @@ PlayerSettings:
   ps3BackgroundPath: 
   ps3SoundPath: 
   ps3TrophyCommId: 
+  ps3NpCommunicationPassphrase: 
   ps3TrophyPackagePath: 
   ps3BootCheckMaxSaveGameSizeKB: 128
   ps3TrophyCommSig: 
@@ -162,7 +167,27 @@ PlayerSettings:
   metroSplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
   metroSplashScreenUseBackgroundColor: 0
   metroCapabilities: {}
+  metroCompilationOverrides: 1
+  blackberryDeviceAddress: 
+  blackberryDevicePassword: 
+  blackberryTokenPath: 
+  blackberryTokenExires: 
+  blackberryTokenAuthor: 
+  blackberryTokenAuthorId: 
+  blackberryAuthorId: 
+  blackberryCskPassword: 
+  blackberrySaveLogPath: 
+  blackberryAuthorIdOveride: 0
+  blackberrySharedPermissions: 0
+  blackberryCameraPermissions: 0
+  blackberryGPSPermissions: 0
+  blackberryDeviceIDPermissions: 0
+  blackberryMicrophonePermissions: 0
+  blackberryBuildId: 0
+  blackberryLandscapeSplashScreen: {fileID: 0}
+  blackberryPortraitSplashScreen: {fileID: 0}
+  blackberrySquareSplashScreen: {fileID: 0}
   firstStreamedLevelWithResources: 0
   unityRebuildLibraryVersion: 9
-  unityForwardCompatibleVersion: 37
+  unityForwardCompatibleVersion: 38
   unityStandardAssetsVersion: 0

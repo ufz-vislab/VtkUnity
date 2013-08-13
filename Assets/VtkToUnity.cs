@@ -31,6 +31,7 @@ public class VtkToUnity
 		}
 		name = filename;
 		reader.SetFileName(filepath);
+		reader.Update();
 		this.mesh = new Mesh();
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
 		triangleFilter.SetInputConnection(reader.GetOutputPort());
@@ -50,7 +51,11 @@ public class VtkToUnity
 		MeshFilter meshFilter = go.AddComponent<MeshFilter>();
 		meshFilter.sharedMesh = mesh;
 		MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-		Material mat = new Material(Shader.Find("Diffuse"));
+		Material mat;
+		if (mesh.colors32 != null)
+			mat = new Material(Shader.Find("UFZ/Vertex Color Front"));
+		else
+			mat = new Material(Shader.Find("Diffuse"));
 		renderer.material = mat;
 
 		return go;
@@ -110,7 +115,34 @@ public class VtkToUnity
 			mesh.uv = uvs;
 		}
 
-		Debug.Log(name + " - Vertices: " + numPoints + ", triangle: " + numTriangles + ", UVs: " + numCoords);
+		// Vertex colors
+		Color32[] colors = new Color32[numPoints];
+		Kitware.VTK.vtkLookupTable lut = Kitware.VTK.vtkLookupTable.New();
+		lut.SetTableRange(0.0, 1.0);
+		lut.SetNumberOfTableValues(2);
+		lut.SetTableValue(0, 0.0, 0.0, 1.0, 1.0); // Blue to red
+		lut.SetTableValue(1, 1.0, 0.0, 0.0, 1.0);
+		lut.Build();
+
+		//Debug.Log("Number of point data arrays: " + pd.GetPointData().GetNumberOfArrays());
+		//Debug.Log("  - " + pd.GetPointData().GetArrayName(0));
+		//Debug.Log("Number of cell data arrays: " + pd.GetCellData().GetNumberOfArrays());
+		//Debug.Log("  - " + pd.GetCellData().GetArrayName(0));
+		Kitware.VTK.vtkDataArray colorArray = pd.GetPointData().GetScalars("Elevation");
+		if (colorArray != null)
+		{
+			for (int i = 0; i < numPoints; ++i)
+			{
+				double scalar = colorArray.GetTuple1(i);
+				double[] dcolor = lut.GetColor(scalar);
+				byte[] color = new byte[3];
+				for (uint j = 0; j < 3; j++)
+					color[j] = (byte)(255 * dcolor[j]);
+				colors[i] = new Color32(color[0], color[1], color[2], 255);
+			}
+			mesh.colors32 = colors;
+		}
+		//Debug.Log(name + " - Vertices: " + numPoints + ", triangle: " + numTriangles + ", UVs: " + numCoords);
 
 		mesh.RecalculateNormals();
 		mesh.RecalculateBounds();
