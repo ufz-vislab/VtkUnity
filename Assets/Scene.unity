@@ -204,7 +204,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a2ba53d48f014344b693f81598873db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filename: Vtk-Data\Box.vtp
 --- !u!1 &2043393138
 GameObject:
   m_ObjectHideFlags: 0

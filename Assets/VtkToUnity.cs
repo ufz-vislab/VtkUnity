@@ -5,7 +5,7 @@ public class VtkToUnity
 {
 	Mesh mesh;
 	public GameObject go;
-	Kitware.VTK.vtkTriangleFilter triangleFilter;
+	public Kitware.VTK.vtkTriangleFilter triangleFilter;
 	string name;
 
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)
@@ -24,9 +24,9 @@ public class VtkToUnity
 
 	GameObject CreateGameObject()
 	{
+		go = new GameObject(name);
 		PolyDataToMesh();
 
-		go = new GameObject(name);
 		MeshFilter meshFilter = go.AddComponent<MeshFilter>();
 		meshFilter.sharedMesh = mesh;
 		MeshRenderer renderer = go.AddComponent<MeshRenderer>();
@@ -62,13 +62,13 @@ public class VtkToUnity
 		// Triangles / Cells
 		int numTriangles = pd.GetNumberOfPolys();
 		int[] triangles = new int[numTriangles * 3];
-		Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 		int prim = 0;
-		Kitware.VTK.vtkCellArray cells = pd.GetPolys();
-		if (cells.GetNumberOfCells() > 0)
+		Kitware.VTK.vtkCellArray polys = pd.GetPolys();
+		if (polys.GetNumberOfCells() > 0)
 		{
-			cells.InitTraversal();
-			while (cells.GetNextCell(pts) != 0)
+			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
+			polys.InitTraversal();
+			while (polys.GetNextCell(pts) != 0)
 			{
 				for (int i = 0; i < pts.GetNumberOfIds(); ++i)
 					triangles[prim * 3 + i] = pts.GetId(i);
@@ -77,6 +77,23 @@ public class VtkToUnity
 			}
 		}
 		mesh.triangles = triangles;
+
+		// Lines
+		Kitware.VTK.vtkCellArray lines = pd.GetLines();
+		if (lines.GetNumberOfCells() > 0)
+		{
+			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
+			lines.InitTraversal();
+			while (lines.GetNextCell(pts) != 0)
+			{
+				int numPointsInLine = pts.GetNumberOfIds();
+				Vector3[] linePoints = new Vector3[numPointsInLine];
+				for (int i = 0; i < numPointsInLine; ++i)
+					linePoints[i] = vertices[pts.GetId(i)];
+				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", linePoints, Color.red, null, 1.0f, Vectrosity.LineType.Continuous);
+				line.Draw3DAuto(go.transform);
+			}
+		}
 
 		// Texture coordinates
 		Vector2[] uvs;
