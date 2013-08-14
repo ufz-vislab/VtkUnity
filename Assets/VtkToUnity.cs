@@ -9,6 +9,7 @@ public class VtkToUnity
 	string name;
 	string colorFieldName = "";
 	VtkDataType colorDataType = VtkDataType.POINT_DATA;
+	Kitware.VTK.vtkDataArray colorArray = null;
 	Kitware.VTK.vtkLookupTable lut = Kitware.VTK.vtkLookupTable.New();
 
 	public enum VtkDataType
@@ -89,7 +90,6 @@ public class VtkToUnity
 		Kitware.VTK.vtkCellArray lines = pd.GetLines();
 		if (lines.GetNumberOfCells() > 0)
 		{
-			Kitware.VTK.vtkDataArray colorArray = GetColorArray();
 			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 			lines.InitTraversal();
 			int prim = 0;
@@ -127,20 +127,17 @@ public class VtkToUnity
 		}
 
 		// Vertex colors
-		//Kitware.VTK.vtkDataArray colorArray = GetColorArray();
-		if (numTriangles > 0 && GetColorArray() != null)
+		if (numTriangles > 0 && colorArray != null)
 		{
 			Color32[] colors = new Color32[numPoints];
 
 			for (int i = 0; i < numPoints; ++i)
 			{
-				byte[] color = GetColorAtIndex(GetColorArray(), i);
+				byte[] color = GetColorAtIndex(colorArray, i);
 				colors[i] = new Color32(color[0], color[1], color[2], 255);
 			}
 			mesh.colors32 = colors;
 		}
-		else if(colorFieldName != "")
-			Debug.Log("Color array " + colorFieldName + " not found!");
 
 		//Debug.Log("Number of point data arrays: " + pd.GetPointData().GetNumberOfArrays());
 		//Debug.Log("  - " + pd.GetPointData().GetArrayName(0));
@@ -167,14 +164,31 @@ public class VtkToUnity
 	{
 		colorFieldName = fieldname;
 		colorDataType = type;
+
+		if (colorFieldName != "")
+		{
+			triangleFilter.Update();
+			Kitware.VTK.vtkPolyData pd = triangleFilter.GetOutput();
+
+			if (colorDataType == VtkDataType.POINT_DATA)
+				colorArray = pd.GetPointData().GetScalars(colorFieldName);
+			else if (colorDataType == VtkDataType.CELL_DATA)
+				colorArray = pd.GetCellData().GetScalars(colorFieldName);
+		}
+		else
+		{
+			colorArray = null;
+			Debug.Log("Color array " + fieldname + " not found!");
+		}
 	}
 
 	public void SetLut(LutPreset preset)
 	{
 		double [] range = {0.0, 1.0};
-		Kitware.VTK.vtkDataArray colorArray = GetColorArray();
-		if(colorArray != null)
+		if (colorArray != null)
 			range = colorArray.GetRange();
+		else
+			Debug.Log("VtkToUnity.SetLut(): No color array set!");
 		SetLut(preset, range[0], range[1]);
 	}
 
@@ -202,23 +216,5 @@ public class VtkToUnity
 				break;
 		}
 		lut.Build();
-	}
-
-	Kitware.VTK.vtkDataArray GetColorArray()
-	{
-		if (colorFieldName != "")
-		{
-			triangleFilter.Update();
-			Kitware.VTK.vtkPolyData pd = triangleFilter.GetOutput();
-
-			Kitware.VTK.vtkDataArray colorArray = null;
-			if (colorDataType == VtkDataType.POINT_DATA)
-				colorArray = pd.GetPointData().GetScalars(colorFieldName);
-			else if (colorDataType == VtkDataType.CELL_DATA)
-				colorArray = pd.GetCellData().GetScalars(colorFieldName);
-			return colorArray;
-		}
-		else
-			return null;
 	}
 }
