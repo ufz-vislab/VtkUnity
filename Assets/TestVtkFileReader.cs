@@ -24,6 +24,7 @@ public class TestVtkFileReader : MonoBehaviour
 
 		VtkToUnity vtkToUnity = new VtkToUnity(reader.GetOutputPort(), filename);
 		vtkToUnity.ColorBy("Elevation", VtkToUnity.VtkDataType.POINT_DATA);
+		vtkToUnity.SetLut(VtkToUnity.LutPreset.BLUE_RED);
 		vtkToUnity.Update();
         vtkToUnity.go.transform.Translate(-2f, 0f, 0f);
 		
