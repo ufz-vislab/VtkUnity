@@ -7,6 +7,14 @@ public class VtkToUnity
 	public GameObject go;
 	public Kitware.VTK.vtkTriangleFilter triangleFilter;
 	string name;
+	string colorFieldName = "";
+	VtkDataType colorDataType = VtkDataType.POINT_DATA;
+
+	public enum VtkDataType
+	{
+		POINT_DATA,
+		CELL_DATA
+	}
 
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)
 	{
@@ -25,7 +33,7 @@ public class VtkToUnity
 	GameObject CreateGameObject()
 	{
 		go = new GameObject(name);
-		PolyDataToMesh();
+		//PolyDataToMesh();
 
 		MeshFilter meshFilter = go.AddComponent<MeshFilter>();
 		meshFilter.sharedMesh = mesh;
@@ -111,36 +119,55 @@ public class VtkToUnity
 		}
 
 		// Vertex colors
-		Color32[] colors = new Color32[numPoints];
-		Kitware.VTK.vtkLookupTable lut = Kitware.VTK.vtkLookupTable.New();
-		lut.SetTableRange(0.0, 1.0);
-		lut.SetNumberOfTableValues(2);
-		lut.SetTableValue(0, 0.0, 0.0, 1.0, 1.0); // Blue to red
-		lut.SetTableValue(1, 1.0, 0.0, 0.0, 1.0);
-		lut.Build();
-
-		//Debug.Log("Number of point data arrays: " + pd.GetPointData().GetNumberOfArrays());
-		//Debug.Log("  - " + pd.GetPointData().GetArrayName(0));
-		//Debug.Log("Number of cell data arrays: " + pd.GetCellData().GetNumberOfArrays());
-		//Debug.Log("  - " + pd.GetCellData().GetArrayName(0));
-		Kitware.VTK.vtkDataArray colorArray = pd.GetPointData().GetScalars("Elevation");
-		if (colorArray != null)
+		if (colorFieldName != "")
 		{
-			for (int i = 0; i < numPoints; ++i)
+			Kitware.VTK.vtkDataArray colorArray = null;
+			if (colorDataType == VtkDataType.POINT_DATA)
+				colorArray = pd.GetPointData().GetScalars(colorFieldName);
+			else if (colorDataType == VtkDataType.CELL_DATA)
+				colorArray = pd.GetCellData().GetScalars(colorFieldName);
+			if (colorArray != null)
 			{
-				double scalar = colorArray.GetTuple1(i);
-				double[] dcolor = lut.GetColor(scalar);
-				byte[] color = new byte[3];
-				for (uint j = 0; j < 3; j++)
-					color[j] = (byte)(255 * dcolor[j]);
-				colors[i] = new Color32(color[0], color[1], color[2], 255);
+				Color32[] colors = new Color32[numPoints];
+				Kitware.VTK.vtkLookupTable lut = Kitware.VTK.vtkLookupTable.New();
+				lut.SetTableRange(0.0, 1.0);
+				lut.SetNumberOfTableValues(2);
+				lut.SetTableValue(0, 0.0, 0.0, 1.0, 1.0); // Blue to red
+				lut.SetTableValue(1, 1.0, 0.0, 0.0, 1.0);
+				lut.Build();
+
+				for (int i = 0; i < numPoints; ++i)
+				{
+					double scalar = colorArray.GetTuple1(i);
+					double[] dcolor = lut.GetColor(scalar);
+					byte[] color = new byte[3];
+					for (uint j = 0; j < 3; j++)
+						color[j] = (byte)(255 * dcolor[j]);
+					colors[i] = new Color32(color[0], color[1], color[2], 255);
+				}
+				mesh.colors32 = colors;
 			}
-			mesh.colors32 = colors;
+			else
+				Debug.Log("Color array " + colorFieldName + " not found!");
+
+			//Debug.Log("Number of point data arrays: " + pd.GetPointData().GetNumberOfArrays());
+			//Debug.Log("  - " + pd.GetPointData().GetArrayName(0));
+			//Debug.Log("Number of cell data arrays: " + pd.GetCellData().GetNumberOfArrays());
+			//Debug.Log("  - " + pd.GetCellData().GetArrayName(0));
+
 		}
+		//else
+		//	Debug.Log("No color field given.");
 		//Debug.Log(name + " - Vertices: " + numPoints + ", triangle: " + numTriangles + ", UVs: " + numCoords);
 
 		mesh.RecalculateNormals();
 		mesh.RecalculateBounds();
 		//mesh.Optimize();
+	}
+
+	public void ColorBy(string fieldname, VtkDataType type)
+	{
+		colorFieldName = fieldname;
+		colorDataType = type;
 	}
 }

@@ -7,7 +7,6 @@ using System.Collections;
  **/
 public class TestVtkFileReader : MonoBehaviour
 {
-
 	string filename = "Vtk-Data/Box.vtp";
 
 	void Start ()
@@ -24,6 +23,8 @@ public class TestVtkFileReader : MonoBehaviour
 		reader.Update();
 
 		VtkToUnity vtkToUnity = new VtkToUnity(reader.GetOutputPort(), filename);
+		vtkToUnity.ColorBy("Elevation", VtkToUnity.VtkDataType.POINT_DATA);
+		vtkToUnity.Update();
         vtkToUnity.go.transform.Translate(-2f, 0f, 0f);
 		
 		Kitware.VTK.vtkContourFilter contours = Kitware.VTK.vtkContourFilter.New();
@@ -32,6 +33,7 @@ public class TestVtkFileReader : MonoBehaviour
 		for(int i = 0; i < 10; ++i)
 			contours.SetValue(i, i / 10.0);
 		VtkToUnity vtkToUnityContours = new VtkToUnity(contours.GetOutputPort(), "Contours");
+		vtkToUnityContours.Update();
 		vtkToUnityContours.go.transform.Translate(-4f, 0f, 0f);
 	}
 }

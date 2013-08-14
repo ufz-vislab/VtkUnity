@@ -21,6 +21,7 @@ public class TestVtkSphereSource : MonoBehaviour
 		SphereSource.Update();
 
 		vtkToUnity = new VtkToUnity(SphereSource.GetOutputPort(), "VTK Sphere Source");
+		vtkToUnity.Update();
 	}
 
 	void Update()
