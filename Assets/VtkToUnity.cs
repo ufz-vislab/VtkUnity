@@ -57,9 +57,9 @@ public class VtkToUnity
 		Kitware.VTK.vtkPolyData pd = triangleFilter.GetOutput();
 
 		// Points / Vertices
-		int numPoints = pd.GetNumberOfPoints();
-		Vector3[] vertices = new Vector3[numPoints];
-		for (int i = 0; i < numPoints; ++i)
+		int numVertices = pd.GetNumberOfPoints();
+		Vector3[] vertices = new Vector3[numVertices];
+		for (int i = 0; i < numVertices; ++i)
 		{
 			double[] pnt = pd.GetPoint(i);
 			// Flip z-up to y-up
@@ -99,7 +99,7 @@ public class VtkToUnity
 				if (colorArray != null && colorDataType == VtkDataType.CELL_DATA)
 				{
 					byte[] color = GetColorAtIndex(colorArray, prim);
-					lineColor = new Color(color[0], color[1], color[2]);
+					lineColor = new Color32(color[0], color[1], color[2], 255);
 				}
 				Vector3[] linePoints = new Vector3[2];
 				linePoints[0] = vertices[pts.GetId(0)];
@@ -108,6 +108,40 @@ public class VtkToUnity
 				line.Draw3DAuto(go.transform);
 				++prim;
 			}
+		}
+
+		// Points
+		Kitware.VTK.vtkCellArray points = pd.GetVerts();
+		int numPointCells = points.GetNumberOfCells();
+		if (numPointCells > 0)
+		{
+			ArrayList list = new ArrayList();
+			ArrayList colorList = new ArrayList();
+			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
+			points.InitTraversal();
+			while (points.GetNextCell(pts) != 0)
+			{
+				ArrayList pointsList = new ArrayList();
+				ArrayList colorsList = new ArrayList();
+				for (int i = 0; i < pts.GetNumberOfIds(); ++i)
+				{
+					pointsList.Add(vertices[pts.GetId(i)]);
+					Color pointColor = Color.white;
+					if (colorArray != null && colorDataType == VtkDataType.POINT_DATA)
+					{
+						byte[] color = GetColorAtIndex(colorArray, pts.GetId(i));
+						pointColor = new Color32(color[0], color[1], color[2], 255);
+					}
+					colorsList.Add(pointColor);
+				}
+				list.AddRange(pointsList);
+				colorList.AddRange(colorsList);
+			}
+			Vectrosity.VectorPoints pnt =
+					new Vectrosity.VectorPoints(name + "-Point " + list.Count,
+						list.ToArray(typeof(Vector3)) as Vector3[],
+						colorList.ToArray(typeof(Color)) as Color[], null, 1f);
+			pnt.Draw3DAuto(go.transform);
 		}
 
 		// Texture coordinates
@@ -129,9 +163,9 @@ public class VtkToUnity
 		// Vertex colors
 		if (numTriangles > 0 && colorArray != null)
 		{
-			Color32[] colors = new Color32[numPoints];
+			Color32[] colors = new Color32[numVertices];
 
-			for (int i = 0; i < numPoints; ++i)
+			for (int i = 0; i < numVertices; ++i)
 			{
 				byte[] color = GetColorAtIndex(colorArray, i);
 				colors[i] = new Color32(color[0], color[1], color[2], 255);
