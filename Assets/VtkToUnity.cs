@@ -20,7 +20,8 @@ public class VtkToUnity
 	public enum LutPreset
 	{
 		BLUE_RED,
-		RED_BLUE
+		RED_BLUE,
+		RAINBOW
 	}
 
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)
@@ -68,10 +69,10 @@ public class VtkToUnity
 		// Triangles / Cells
 		int numTriangles = pd.GetNumberOfPolys();
 		int[] triangles = new int[numTriangles * 3];
-		int prim = 0;
 		Kitware.VTK.vtkCellArray polys = pd.GetPolys();
 		if (polys.GetNumberOfCells() > 0)
 		{
+			int prim = 0;
 			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 			polys.InitTraversal();
 			while (polys.GetNextCell(pts) != 0)
@@ -88,15 +89,24 @@ public class VtkToUnity
 		Kitware.VTK.vtkCellArray lines = pd.GetLines();
 		if (lines.GetNumberOfCells() > 0)
 		{
+			Kitware.VTK.vtkDataArray colorArray = GetColorArray();
 			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 			lines.InitTraversal();
+			int prim = 0;
 			while (lines.GetNextCell(pts) != 0)
 			{
+				Color lineColor = Color.white;
+				if (colorArray != null && colorDataType == VtkDataType.CELL_DATA)
+				{
+					byte[] color = GetColorAtIndex(colorArray, prim);
+					lineColor = new Color(color[0], color[1], color[2]);
+				}
 				Vector3[] linePoints = new Vector3[2];
 				linePoints[0] = vertices[pts.GetId(0)];
 				linePoints[1] = vertices[pts.GetId(1)];
-				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", linePoints, Color.red, null, 1.0f);
+				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", linePoints, lineColor, null, 1.0f);
 				line.Draw3DAuto(go.transform);
+				++prim;
 			}
 		}
 
@@ -117,18 +127,14 @@ public class VtkToUnity
 		}
 
 		// Vertex colors
-		Kitware.VTK.vtkDataArray colorArray = GetColorArray();
-		if (colorArray != null)
+		//Kitware.VTK.vtkDataArray colorArray = GetColorArray();
+		if (numTriangles > 0 && GetColorArray() != null)
 		{
 			Color32[] colors = new Color32[numPoints];
 
 			for (int i = 0; i < numPoints; ++i)
 			{
-				double scalar = colorArray.GetTuple1(i);
-				double[] dcolor = lut.GetColor(scalar);
-				byte[] color = new byte[3];
-				for (uint j = 0; j < 3; j++)
-					color[j] = (byte)(255 * dcolor[j]);
+				byte[] color = GetColorAtIndex(GetColorArray(), i);
 				colors[i] = new Color32(color[0], color[1], color[2], 255);
 			}
 			mesh.colors32 = colors;
@@ -145,6 +151,16 @@ public class VtkToUnity
 		mesh.RecalculateNormals();
 		mesh.RecalculateBounds();
 		//mesh.Optimize();
+	}
+
+	private byte[] GetColorAtIndex(Kitware.VTK.vtkDataArray colorArray, int i)
+	{
+		double scalar = colorArray.GetTuple1(i);
+		double[] dcolor = lut.GetColor(scalar);
+		byte[] color = new byte[3];
+		for (uint j = 0; j < 3; j++)
+			color[j] = (byte)(255 * dcolor[j]);
+		return color;
 	}
 
 	public void ColorBy(string fieldname, VtkDataType type)
@@ -168,14 +184,19 @@ public class VtkToUnity
 		switch (preset)
 		{
 			case LutPreset.BLUE_RED:
-				lut.SetNumberOfTableValues(2);
-				lut.SetTableValue(0, 0.0, 0.0, 1.0, 1.0);
-				lut.SetTableValue(1, 1.0, 0.0, 0.0, 1.0);
+				lut.SetHueRange(0.66, 1.0);
+				lut.SetNumberOfColors(128);
 				break;
 			case LutPreset.RED_BLUE:
-				lut.SetNumberOfTableValues(2);
-				lut.SetTableValue(0, 1.0, 0.0, 0.0, 1.0);
-				lut.SetTableValue(1, 0.0, 0.0, 1.0, 1.0);
+				lut.SetHueRange(1.0, 0.66);
+				lut.SetNumberOfColors(128);
+				//lut.SetNumberOfTableValues(2);
+				//lut.SetTableValue(0, 1.0, 0.0, 0.0, 1.0);
+				//lut.SetTableValue(1, 0.0, 0.0, 1.0, 1.0);
+				break;
+			case LutPreset.RAINBOW:
+				lut.SetHueRange(0.0, 0.66);
+				lut.SetNumberOfColors(256);
 				break;
 			default:
 				break;

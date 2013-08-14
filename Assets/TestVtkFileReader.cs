@@ -34,6 +34,8 @@ public class TestVtkFileReader : MonoBehaviour
 		for(int i = 0; i < 10; ++i)
 			contours.SetValue(i, i / 10.0);
 		VtkToUnity vtkToUnityContours = new VtkToUnity(contours.GetOutputPort(), "Contours");
+		vtkToUnityContours.ColorBy("Ids", VtkToUnity.VtkDataType.CELL_DATA);
+		vtkToUnityContours.SetLut(VtkToUnity.LutPreset.RAINBOW);
 		vtkToUnityContours.Update();
 		vtkToUnityContours.go.transform.Translate(-4f, 0f, 0f);
 	}
