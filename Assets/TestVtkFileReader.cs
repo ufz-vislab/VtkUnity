@@ -9,8 +9,8 @@ public class TestVtkFileReader : MonoBehaviour
 {
 	void Start ()
 	{
-		string filepath = Application.dataPath + "/" + "Vtk-Data/Box.vtp";
-		filepath = filepath.Replace("/", "\\");
+		string filepath = System.IO.Path.Combine(Application.streamingAssetsPath, "Vtk-Data/Box.vtp"); //Application.dataPath + "/" + "Vtk-Data/Box.vtp";
+		//filepath = filepath.Replace("/", "\\");
 		Kitware.VTK.vtkXMLPolyDataReader reader = Kitware.VTK.vtkXMLPolyDataReader.New();
 		if (reader.CanReadFile(filepath) == 0)
 		{
@@ -41,8 +41,7 @@ public class TestVtkFileReader : MonoBehaviour
 		vtkToUnityContours.go.transform.Translate(-4f, 0f, 0f);
 
 		// Points
-		filepath = Application.dataPath + "/Vtk-Data/Points.vtp";
-		filepath = filepath.Replace("/", "\\");
+		filepath = System.IO.Path.Combine(Application.streamingAssetsPath, "Vtk-Data/Points.vtp");
 		if (reader.CanReadFile(filepath) == 0)
 		{
 			Debug.Log(filepath + " could not be loaded by Vtk!");
