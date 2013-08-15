@@ -21,8 +21,9 @@ public class TestVtkFileReader : MonoBehaviour
 		reader.Update();
 
 		VtkToUnity vtkToUnity = new VtkToUnity(reader.GetOutputPort(), "Vtk-Data/Box.vtp");
-		vtkToUnity.ColorBy("Elevation", VtkToUnity.VtkDataType.POINT_DATA);
+		vtkToUnity.ColorBy("Elevation", VtkToUnity.VtkColorType.POINT_DATA);
 		vtkToUnity.SetLut(VtkToUnity.LutPreset.BLUE_RED);
+		//vtkToUnity.ColorBy(Color.red);
 		vtkToUnity.Update();
         vtkToUnity.go.transform.Translate(-2f, 0f, 0f);
 		
@@ -33,8 +34,9 @@ public class TestVtkFileReader : MonoBehaviour
 			contours.SetValue(i, i / 10.0);
 		contours.ComputeScalarsOn();
 		VtkToUnity vtkToUnityContours = new VtkToUnity(contours.GetOutputPort(), "Contours");
-		vtkToUnityContours.ColorBy("Elevation", VtkToUnity.VtkDataType.POINT_DATA);
+		vtkToUnityContours.ColorBy("Elevation", VtkToUnity.VtkColorType.POINT_DATA);
 		vtkToUnityContours.SetLut(VtkToUnity.LutPreset.BLUE_RED);
+		//vtkToUnityContours.ColorBy(Color.red);
 		vtkToUnityContours.Update();
 		vtkToUnityContours.go.transform.Translate(-4f, 0f, 0f);
 
@@ -50,8 +52,9 @@ public class TestVtkFileReader : MonoBehaviour
 		reader.Update();
 
 		VtkToUnity vtkToUnityPoints = new VtkToUnity(reader.GetOutputPort(), "Vtk-Data/Points.vtp");
-		vtkToUnityPoints.ColorBy("Elevation", VtkToUnity.VtkDataType.POINT_DATA);
+		vtkToUnityPoints.ColorBy("Elevation", VtkToUnity.VtkColorType.POINT_DATA);
 		vtkToUnityPoints.SetLut(VtkToUnity.LutPreset.RED_BLUE);
+		//vtkToUnityPoints.ColorBy(Color.red);
 		vtkToUnityPoints.Update();
 		vtkToUnityPoints.go.transform.Translate(2f, 0f, 0f);
 	}

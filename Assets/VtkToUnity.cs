@@ -8,14 +8,17 @@ public class VtkToUnity
 	public Kitware.VTK.vtkTriangleFilter triangleFilter;
 	string name;
 	string colorFieldName = "";
-	VtkDataType colorDataType = VtkDataType.POINT_DATA;
+	VtkColorType colorDataType = VtkColorType.POINT_DATA;
 	Kitware.VTK.vtkDataArray colorArray = null;
 	Kitware.VTK.vtkLookupTable lut = Kitware.VTK.vtkLookupTable.New();
+	Material mat;
+	Color solidColor;
 
-	public enum VtkDataType
+	public enum VtkColorType
 	{
 		POINT_DATA,
-		CELL_DATA
+		CELL_DATA,
+		SOLID_COLOR
 	}
 
 	public enum LutPreset
@@ -34,13 +37,7 @@ public class VtkToUnity
 
 		MeshFilter meshFilter = go.AddComponent<MeshFilter>();
 		meshFilter.sharedMesh = mesh;
-		MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-		Material mat;
-		if (mesh.colors32 != null)
-			mat = new Material(Shader.Find("UFZ/Vertex Color Front"));
-		else
-			mat = new Material(Shader.Find("Diffuse"));
-		renderer.material = mat;
+		go.AddComponent<MeshRenderer>();
 	}
 
 	public void Update()
@@ -95,12 +92,12 @@ public class VtkToUnity
 			int prim = 0;
 			while (lines.GetNextCell(pts) != 0)
 			{
-				Color lineColor = Color.white;
+				Color lineColor = solidColor;
 				if (colorArray != null)
 				{
-					if (colorDataType == VtkDataType.CELL_DATA)
+					if (colorDataType == VtkColorType.CELL_DATA)
 						lineColor = GetColorAtIndex(prim);
-					else if (colorDataType == VtkDataType.POINT_DATA)
+					else if (colorDataType == VtkColorType.POINT_DATA)
 						lineColor = GetColorAtIndex(pts.GetId(0));
 				}
 
@@ -129,8 +126,8 @@ public class VtkToUnity
 				for (int i = 0; i < pts.GetNumberOfIds(); ++i)
 				{
 					pointsList.Add(vertices[pts.GetId(i)]);
-					Color pointColor = Color.white;
-					if (colorArray != null && colorDataType == VtkDataType.POINT_DATA)
+					Color pointColor = solidColor;
+					if (colorArray != null && colorDataType == VtkColorType.POINT_DATA)
 						pointColor = GetColorAtIndex(pts.GetId(i));
 					colorsList.Add(pointColor);
 				}
@@ -203,7 +200,18 @@ public class VtkToUnity
 		return GetColor32AtIndex(i);
 	}
 
-	public void ColorBy(string fieldname, VtkDataType type)
+	public void ColorBy(Color color)
+	{
+		colorFieldName = "";
+		colorDataType = VtkColorType.SOLID_COLOR;
+		solidColor = color;
+
+		mat = new Material(Shader.Find("Diffuse"));
+		mat.color = color;
+		go.GetComponent<Renderer>().material = mat;
+	}
+
+	public void ColorBy(string fieldname, VtkColorType type)
 	{
 		colorFieldName = fieldname;
 		colorDataType = type;
@@ -213,14 +221,20 @@ public class VtkToUnity
 			triangleFilter.Update();
 			Kitware.VTK.vtkPolyData pd = triangleFilter.GetOutput();
 
-			if (colorDataType == VtkDataType.POINT_DATA)
+			if (colorDataType == VtkColorType.POINT_DATA)
 				colorArray = pd.GetPointData().GetScalars(colorFieldName);
-			else if (colorDataType == VtkDataType.CELL_DATA)
+			else if (colorDataType == VtkColorType.CELL_DATA)
 				colorArray = pd.GetCellData().GetScalars(colorFieldName);
+
+			mat = new Material(Shader.Find("UFZ/Vertex Color Front"));
+			go.GetComponent<Renderer>().material = mat;
 		}
 		else
 		{
 			colorArray = null;
+			mat = new Material(Shader.Find("Diffuse"));
+			mat.color = Color.magenta;
+			go.GetComponent<Renderer>().material = mat;
 			Debug.Log("Color array " + fieldname + " not found!");
 		}
 	}
