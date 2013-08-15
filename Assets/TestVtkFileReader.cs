@@ -31,9 +31,10 @@ public class TestVtkFileReader : MonoBehaviour
 		contours.SetInputArrayToProcess(0,0,0, (int)Kitware.VTK.vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, "Elevation");
 		for(int i = 0; i < 10; ++i)
 			contours.SetValue(i, i / 10.0);
+		contours.ComputeScalarsOn();
 		VtkToUnity vtkToUnityContours = new VtkToUnity(contours.GetOutputPort(), "Contours");
-		vtkToUnityContours.ColorBy("Ids", VtkToUnity.VtkDataType.CELL_DATA);
-		vtkToUnityContours.SetLut(VtkToUnity.LutPreset.RAINBOW);
+		vtkToUnityContours.ColorBy("Elevation", VtkToUnity.VtkDataType.POINT_DATA);
+		vtkToUnityContours.SetLut(VtkToUnity.LutPreset.BLUE_RED);
 		vtkToUnityContours.Update();
 		vtkToUnityContours.go.transform.Translate(-4f, 0f, 0f);
 

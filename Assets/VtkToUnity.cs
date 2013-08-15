@@ -96,11 +96,14 @@ public class VtkToUnity
 			while (lines.GetNextCell(pts) != 0)
 			{
 				Color lineColor = Color.white;
-				if (colorArray != null && colorDataType == VtkDataType.CELL_DATA)
+				if (colorArray != null)
 				{
-					byte[] color = GetColorAtIndex(colorArray, prim);
-					lineColor = new Color32(color[0], color[1], color[2], 255);
+					if (colorDataType == VtkDataType.CELL_DATA)
+						lineColor = GetColorAtIndex(prim);
+					else if (colorDataType == VtkDataType.POINT_DATA)
+						lineColor = GetColorAtIndex(pts.GetId(0));
 				}
+
 				Vector3[] linePoints = new Vector3[2];
 				linePoints[0] = vertices[pts.GetId(0)];
 				linePoints[1] = vertices[pts.GetId(1)];
@@ -128,10 +131,7 @@ public class VtkToUnity
 					pointsList.Add(vertices[pts.GetId(i)]);
 					Color pointColor = Color.white;
 					if (colorArray != null && colorDataType == VtkDataType.POINT_DATA)
-					{
-						byte[] color = GetColorAtIndex(colorArray, pts.GetId(i));
-						pointColor = new Color32(color[0], color[1], color[2], 255);
-					}
+						pointColor = GetColorAtIndex(pts.GetId(i));
 					colorsList.Add(pointColor);
 				}
 				list.AddRange(pointsList);
@@ -166,10 +166,8 @@ public class VtkToUnity
 			Color32[] colors = new Color32[numVertices];
 
 			for (int i = 0; i < numVertices; ++i)
-			{
-				byte[] color = GetColorAtIndex(colorArray, i);
-				colors[i] = new Color32(color[0], color[1], color[2], 255);
-			}
+				colors[i] = GetColor32AtIndex(i);
+
 			mesh.colors32 = colors;
 		}
 
@@ -184,7 +182,7 @@ public class VtkToUnity
 		//mesh.Optimize();
 	}
 
-	private byte[] GetColorAtIndex(Kitware.VTK.vtkDataArray colorArray, int i)
+	private byte[] GetByteColorAtIndex(int i)
 	{
 		double scalar = colorArray.GetTuple1(i);
 		double[] dcolor = lut.GetColor(scalar);
@@ -192,6 +190,17 @@ public class VtkToUnity
 		for (uint j = 0; j < 3; j++)
 			color[j] = (byte)(255 * dcolor[j]);
 		return color;
+	}
+
+	private Color32 GetColor32AtIndex(int i)
+	{
+		byte[] color = GetByteColorAtIndex(i);
+		return new Color32(color[0], color[1], color[2], 255);
+	}
+
+	private Color GetColorAtIndex(int i)
+	{
+		return GetColor32AtIndex(i);
 	}
 
 	public void ColorBy(string fieldname, VtkDataType type)
