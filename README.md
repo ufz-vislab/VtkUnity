@@ -8,13 +8,22 @@
 
 ## Usage
 
-All C#-Dlls (Kitware.*) from ActiViz' *bin*-folder have to be in a *Plugins*-folder in Unity. Have a look at the example scene. For more infos regarding VTK in C# check out the [examples][2].
+All C#-Dlls (Kitware.\*) from ActiViz' *bin*-folder have to be in a *Plugins*-folder in Unity. Have a look at the example scene. For more infos regarding VTK in C# check out the [examples][2].
 
 ## Run as a player
 
 - In *Player Settings* set *API Compatibility Level* to *.NET 2.0*
 - Either all Dlls are in the same directory as the player exe or simply have ActiViz installed and its *bin*-dir appended to the `PATH`
 
+## Features
+
+You can build arbitrary VTK filter pipelines but at the the `VtkToUnity`-class accepts a `vtkAlgorithmOutput` with `vtkPolyData`. It then runs a `vtkTriangleFilter` on it. Points and Lines are rendered via [Vectrosity][3] which is not included. All primitves (points, lines, triangles) can be colored by a solid color, a point data scalar (1d) field or by a cell data scalar (1d) field. Some lookup table presets can be used.
+
+## General ActiViz tips
+
+- When instantiating a VTK class use its `New()`-method instead of C#s `new`
+- C#s automatic garbage collection should work as expected. Calling `Dispose()` on VTK objects should not be necessary.
 
 [1]:	http://www.kitware.com/KWLD/download/download.php?cid=anonymous&fid=67&pid=17
 [2]:	http://www.vtk.org/Wiki/VTK/Examples/CSharp
+[3]:	http://starscenesoftware.com/vectrosity.html
