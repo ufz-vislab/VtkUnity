@@ -17,7 +17,7 @@ All C#-Dlls (Kitware.\*) from ActiViz' *bin*-folder have to be in a *Plugins*-fo
 
 ## Features
 
-You can build arbitrary VTK filter pipelines but at the the `VtkToUnity`-class accepts a `vtkAlgorithmOutput` with `vtkPolyData`. It then runs a `vtkTriangleFilter` on it. Points and Lines are rendered via [Vectrosity][3] which is not included. All primitves (points, lines, triangles) can be colored by a solid color, a point data scalar (1d) field or by a cell data scalar (1d) field. Some lookup table presets can be used.
+You can build arbitrary VTK filter pipelines but at the end the `VtkToUnity`-class accepts a `vtkAlgorithmOutput` with `vtkPolyData`. It then runs a `vtkTriangleFilter` on it. Points and Lines are rendered via [Vectrosity][3] which is not included. All primitves (points, lines, triangles) can be colored by a solid color, a point data scalar (1d) field or by a cell data scalar (1d) field. Some lookup table presets can be used.
 
 ## General ActiViz tips
 
