@@ -1,5 +1,7 @@
 # VTK in Unity via ActiViz
 
+Brings scientific visualization into the Unity game engine. Goal of this project is to interactively control visualization parameters in a VR environment (powered by [MiddleVR][4]).
+
 ## Prerequisites
 
 - Windows only
@@ -28,3 +30,4 @@ You can build arbitrary VTK filter pipelines but at the end the `VtkToUnity`-cla
 [1]:	http://www.kitware.com/KWLD/download/download.php?cid=anonymous&fid=67&pid=17
 [2]:	http://www.vtk.org/Wiki/VTK/Examples/CSharp
 [3]:	http://starscenesoftware.com/vectrosity.html
+[4]:  http://imin-vr.com/
