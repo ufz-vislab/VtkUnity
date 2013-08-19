@@ -40,6 +40,12 @@ public class VtkToUnity
 		go.AddComponent<MeshRenderer>();
 	}
 
+	~VtkToUnity()
+	{
+		foreach (Material mat in go.GetComponent<Renderer>().materials)
+			Object.DestroyImmediate(mat);
+	}
+
 	public void Update()
 	{
 		PolyDataToMesh();
@@ -226,8 +232,9 @@ public class VtkToUnity
 			else if (colorDataType == VtkColorType.CELL_DATA)
 				colorArray = pd.GetCellData().GetScalars(colorFieldName);
 
-			mat = new Material(Shader.Find("UFZ/Vertex Color Front"));
-			go.GetComponent<Renderer>().material = mat;
+			go.GetComponent<Renderer>().materials = new Material[2] { 
+				new Material(Shader.Find("UFZ/Vertex Color Front")),
+				new Material(Shader.Find("UFZ/Vertex Color Back"))};
 		}
 		else
 		{

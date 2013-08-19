@@ -184,6 +184,7 @@ Renderer:
   m_LightmapTilingOffset: {x: 1, y: 1, z: 0, w: 0}
   m_Materials:
   - {fileID: 2100000, guid: 5da3bb3192087f14f98d1c30eb2fe799, type: 2}
+  - {fileID: 2100000, guid: ad969ae43104edf478d81f8d5c607f1f, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 0
@@ -229,6 +230,8 @@ GameObject:
   - 4: {fileID: 1742554049}
   - 114: {fileID: 1742554050}
   - 114: {fileID: 1742554051}
+  - 114: {fileID: 1742554052}
+  - 114: {fileID: 1742554053}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -268,6 +271,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a2ba53d48f014344b693f81598873db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1742554052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1742554048}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16889e0c8b7b3034f8ccaac68bb6aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resolution: 5
+--- !u!114 &1742554053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1742554048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 444d5ba267e42dc4883edc9c1a5cbd3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2043393138
