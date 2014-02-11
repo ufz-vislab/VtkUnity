@@ -1,12 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
+[System.Serializable]
 public class VtkToUnity
 {
-	Mesh mesh = new Mesh();
+	public Mesh mesh = new Mesh();
 	public GameObject go;
 	public Kitware.VTK.vtkTriangleFilter triangleFilter;
-	string name;
+	public string name;
 	string colorFieldName = "";
 	VtkColorType colorDataType = VtkColorType.POINT_DATA;
 	Kitware.VTK.vtkDataArray colorArray = null;
@@ -28,16 +29,37 @@ public class VtkToUnity
 		RAINBOW
 	}
 
+	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, GameObject go)
+	{
+		this.name = go.name;
+		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
+		triangleFilter.SetInputConnection(outputPort);
+		
+		this.go = go;
+
+		if (!go.GetComponent<MeshFilter> ()) 
+		{
+			go.AddComponent<MeshFilter> ();
+		}
+		go.GetComponent<MeshFilter> ().sharedMesh = mesh;
+
+		if (!go.GetComponent<MeshRenderer> ()) 
+		{
+			go.AddComponent<MeshRenderer> ();
+		}
+	}
+
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)
 	{
 		this.name = name;
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
 		triangleFilter.SetInputConnection(outputPort);
+		
 		go = new GameObject(name);
 
-		MeshFilter meshFilter = go.AddComponent<MeshFilter>();
+		MeshFilter meshFilter = go.AddComponent<MeshFilter> ();
 		meshFilter.sharedMesh = mesh;
-		go.AddComponent<MeshRenderer>();
+		go.AddComponent<MeshRenderer> ();
 	}
 
 	~VtkToUnity()
@@ -221,7 +243,7 @@ public class VtkToUnity
 	{
 		colorFieldName = fieldname;
 		colorDataType = type;
-
+		
 		if (colorFieldName != "")
 		{
 			triangleFilter.Update();
