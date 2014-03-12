@@ -8,12 +8,12 @@ public class VtkToUnity
 	public GameObject go;
 	public Kitware.VTK.vtkTriangleFilter triangleFilter;
 	public string name;
-	string colorFieldName = "";
-	VtkColorType colorDataType = VtkColorType.POINT_DATA;
-	Kitware.VTK.vtkDataArray colorArray = null;
-	Kitware.VTK.vtkLookupTable lut = Kitware.VTK.vtkLookupTable.New();
-	Material mat;
-	Color solidColor;
+	public string colorFieldName = "";
+	public VtkColorType colorDataType = VtkColorType.POINT_DATA;
+	public Kitware.VTK.vtkDataArray colorArray = null;
+	public Kitware.VTK.vtkLookupTable lut = Kitware.VTK.vtkLookupTable.New();
+	public Material mat;
+	public Color solidColor;
 
 	public enum VtkColorType
 	{
@@ -34,7 +34,7 @@ public class VtkToUnity
 		this.name = go.name;
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
 		triangleFilter.SetInputConnection(outputPort);
-		
+
 		this.go = go;
 
 		if (!go.GetComponent<MeshFilter> ()) 
@@ -47,6 +47,7 @@ public class VtkToUnity
 		{
 			go.AddComponent<MeshRenderer> ();
 		}
+
 	}
 
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)

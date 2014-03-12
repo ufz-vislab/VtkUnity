@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(VTKFilterRotationalExtrusion))]
@@ -40,7 +40,8 @@ public class EditorVTKFilterRotationalExtrusion : Editor
 
 		if (EditorGUI.EndChangeCheck ()) 
 		{
-			script.gameObject.GetComponent<VTKObjectManager> ().ComputeFilters();
+			VTKObjectRoot root = script.gameObject.GetComponent<VTKObjectRoot>();
+			root.Modifie(root.activeNode);
 		}
 
 		EditorUtility.SetDirty (target);
