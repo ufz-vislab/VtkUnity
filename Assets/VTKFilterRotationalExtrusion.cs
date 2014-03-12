@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 
 [ExecuteInEditMode]
@@ -18,7 +18,7 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 	[HideInInspector]
 	public Kitware.VTK.vtkRotationalExtrusionFilter filter;
 
-	public override Kitware.VTK.vtkAlgorithmOutput ApplyFilter(Kitware.VTK.vtkAlgorithmOutput input)
+	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
 		filter = Kitware.VTK.vtkRotationalExtrusionFilter.New ();
 

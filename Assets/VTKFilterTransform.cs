@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /*
  * Translate, rotate and scale an object
@@ -33,7 +33,7 @@ public class VTKFilterTransform : VTKFilter
 	[HideInInspector]
 	public Kitware.VTK.vtkTransformFilter filter;
 
-	public override Kitware.VTK.vtkAlgorithmOutput ApplyFilter(Kitware.VTK.vtkAlgorithmOutput input)
+	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
 		vtkTransform = Kitware.VTK.vtkTransform.New ();
 		filter = Kitware.VTK.vtkTransformFilter.New ();
@@ -51,7 +51,7 @@ public class VTKFilterTransform : VTKFilter
 
 	public void SetTranslation ()
 	{
-		//TODO change to vtk data
+		//TODO change to vtk data?
 		gameObject.transform.Translate (translateX, translateY, translateZ);
 
 		//vtkTransform.Translate (translateX, translateY, translateZ);

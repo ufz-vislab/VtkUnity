@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(VTKFilterTransform))]
@@ -41,7 +41,8 @@ public class EditorVTKFilterTransform : Editor
 
 		if (EditorGUI.EndChangeCheck ()) 
 		{
-			//script.gameObject.GetComponent<VTKObjectManager>().ComputeFilters();
+			VTKObjectRoot root = script.gameObject.GetComponent<VTKObjectRoot>();
+			root.Modifie(root.activeNode);
 		}
 
 		EditorUtility.SetDirty (target);
