@@ -9,8 +9,6 @@ public class EditorVTKProperties : Editor
 	public override void OnInspectorGUI()
 	{
 		script = (VTKProperties)target;
-	
-		script.ReadProperties ();
 
 		DrawDefaultInspector ();
 
@@ -33,13 +31,8 @@ public class EditorVTKProperties : Editor
 		EditorGUILayout.EndHorizontal ();
 		
 		EditorGUILayout.BeginHorizontal ();
-		EditorGUILayout.LabelField ("Point Data:");
-		script.selectedPointArray = EditorGUILayout.Popup(script.selectedPointArray, script.pointArrays);
-		EditorGUILayout.EndHorizontal ();
-		
-		EditorGUILayout.BeginHorizontal ();
-		EditorGUILayout.LabelField ("Cell Data:");
-		script.selectedCellArray = EditorGUILayout.Popup(script.selectedCellArray, script.cellArrays);
+		EditorGUILayout.LabelField ("Data:");
+		script.selectedDataArray = EditorGUILayout.Popup(script.selectedDataArray, script.dataArray);
 		EditorGUILayout.EndHorizontal ();
 
 		EditorGUILayout.BeginHorizontal ();
@@ -49,7 +42,7 @@ public class EditorVTKProperties : Editor
 
 		if (EditorGUI.EndChangeCheck ()) 
 		{
-			VTKObjectRoot root = script.gameObject.GetComponent<VTKObjectRoot>();
+			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
 			root.UpdateProperties(root.activeNode);
 		}
 	}

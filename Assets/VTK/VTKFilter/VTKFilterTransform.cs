@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /*
- * Translate, rotate and scale an object
+ * Translate, rotate or scale
  * */
 
 [ExecuteInEditMode]
@@ -27,11 +27,18 @@ public class VTKFilterTransform : VTKFilter
 	public float scaleY = 1.0f;
 	[HideInInspector]
 	public float scaleZ = 1.0f;
-	
+
 	[HideInInspector]
 	public Kitware.VTK.vtkTransform vtkTransform;
+
 	[HideInInspector]
 	public Kitware.VTK.vtkTransformFilter filter;
+
+	protected override void OnEnable ()
+	{
+		base.InputType = VTK.FilterType.PolyData;
+		base.OutputType = VTK.FilterType.PolyData;
+	}
 
 	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
@@ -45,7 +52,9 @@ public class VTKFilterTransform : VTKFilter
 		SetScale ();
 
 		filter.SetTransform (vtkTransform);
-		
+
+		filter.Update ();
+
 		return filter.GetOutputPort();
 	}
 

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 /*
@@ -31,6 +31,14 @@ public class VTKNode
 
 	public VTKNode AddChild(VTKNode node)
 	{
+		if (!VTK.ApplicableFilters (this, node))
+		{
+			Object.DestroyImmediate(node.filter);
+			Object.DestroyImmediate(node.properties);
+
+			return null;
+		}
+
 		if (children == null) 
 		{
 			children = new List<VTKNode>();

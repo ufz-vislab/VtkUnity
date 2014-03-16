@@ -5,6 +5,7 @@ using System.Collections;
  * Loads a vtkPolyData from an XML file (vtp).
  *
  **/
+[ExecuteInEditMode]
 public class TestVtkFileReader : MonoBehaviour
 {
 	void Start ()

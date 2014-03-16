@@ -134,7 +134,8 @@ public class VtkToUnity
 				linePoints[0] = vertices[pts.GetId(0)];
 				linePoints[1] = vertices[pts.GetId(1)];
 				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", linePoints, lineColor, null, 1.0f);
-				line.Draw3DAuto(go.transform);
+				//line.Draw3DAuto(go.transform);
+				line.Draw3D(go.transform);
 				++prim;
 			}
 		}
@@ -167,7 +168,8 @@ public class VtkToUnity
 					new Vectrosity.VectorPoints(name + "-Point " + list.Count,
 						list.ToArray(typeof(Vector3)) as Vector3[],
 						colorList.ToArray(typeof(Color)) as Color[], null, 1f);
-			pnt.Draw3DAuto(go.transform);
+			//pnt.Draw3DAuto(go.transform);
+			pnt.Draw3D(go.transform);
 		}
 
 		// Texture coordinates
@@ -244,7 +246,7 @@ public class VtkToUnity
 	{
 		colorFieldName = fieldname;
 		colorDataType = type;
-		
+
 		if (colorFieldName != "")
 		{
 			triangleFilter.Update();

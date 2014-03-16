@@ -18,6 +18,12 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 	[HideInInspector]
 	public Kitware.VTK.vtkRotationalExtrusionFilter filter;
 
+	protected override void OnEnable ()
+	{
+		base.InputType = VTK.FilterType.PolyData;
+		base.OutputType = VTK.FilterType.PolyData;
+	}
+
 	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
 		filter = Kitware.VTK.vtkRotationalExtrusionFilter.New ();
@@ -29,7 +35,8 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 		filter.SetTranslation (translation);
 		filter.SetDeltaRadius (deltaRadius);
 		filter.SetCapping (Convert.ToInt32(capping));
-	
+		filter.Update ();
+
 		return filter.GetOutputPort ();
 	}
 }
