@@ -1,23 +1,19 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
-/*
- * Creates tree-structure for vtk-filters for the given object
- * */
-
-[CustomEditor(typeof(VTKObjectRoot))]
-public class EditorVTKObjectRoot : Editor 
+[CustomEditor(typeof(VTKRoot))]
+public class EditorVTKRoot : Editor 
 {
-	public GUIStyle treeNodeStyle; //Own style to have button as labels
+	public GUIStyle treeNodeStyle; //Own style to have buttons as labels
 
-	public VTKObjectRoot script;
+	public VTKRoot script;
 	
 	public override void OnInspectorGUI()
 	{
 		treeNodeStyle = new GUIStyle(EditorStyles.label);
 
-		script = (VTKObjectRoot)target;
+		script = (VTKRoot)target;
 		
 		DrawDefaultInspector ();
 
@@ -48,6 +44,13 @@ public class EditorVTKObjectRoot : Editor
 			
 			if(script.filepath.EndsWith(".vtp") || script.filepath.EndsWith(".vtu")) 
 			{
+				//Set data type
+				if(script.filepath.EndsWith(".vtp"))
+					script.readerType = VTK.FilterType.PolyData;
+
+				if(script.filepath.EndsWith(".vtu"))
+					script.readerType = VTK.FilterType.UnstructuredGrid;
+
 				script.selectedFileIsValid = true;
 				script.Initialize();
 				script.startPosition = script.gameObject.transform.position;
@@ -86,7 +89,7 @@ public class EditorVTKObjectRoot : Editor
 		
 		if (GUILayout.Button ("Add")) 
 		{
-			script.AddNode (script.allFilters[script.selectedFilter]);
+			script.AddFilter (script.allFilters[script.selectedFilter]);
 		}
 		EditorGUILayout.EndHorizontal ();
 

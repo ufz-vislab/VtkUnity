@@ -41,7 +41,7 @@ public class EditorVTKFilterTransform : Editor
 
 		if (EditorGUI.EndChangeCheck ()) 
 		{
-			VTKObjectRoot root = script.gameObject.GetComponent<VTKObjectRoot>();
+			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
 			root.Modifie(root.activeNode);
 		}
 

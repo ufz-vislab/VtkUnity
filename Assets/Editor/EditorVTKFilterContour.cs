@@ -8,11 +8,23 @@ public class EditorVTKFilterContour : Editor
 	{
 		VTKFilterContour script = (VTKFilterContour)target;
 
+		VTKProperties properties = script.gameObject.GetComponent<VTKProperties> ();
+
 		DrawDefaultInspector();
 
-		if (GUILayout.Button ("Apply")) 
+		EditorGUI.BeginChangeCheck ();
+
+		EditorGUILayout.BeginHorizontal ();
+		/*
+		EditorGUILayout.LabelField ("DataSet: " + properties.pointArrays[properties.selectedPointArray]);
+
+		script.DataSet = properties.pointArrays[properties.selectedPointArray];
+		EditorGUILayout.EndHorizontal ();
+		*/
+		if(EditorGUI.EndChangeCheck())
 		{
-			script.ApplyFilter();
+			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
+			root.Modifie(root.activeNode);
 		}
 
 		EditorUtility.SetDirty (target);
