@@ -5,13 +5,25 @@ using System.Collections;
 public abstract class VTKFilter : MonoBehaviour 
 {
 	[HideInInspector]
+	private Kitware.VTK.vtkAlgorithm vtkFilter;
+	[HideInInspector]
+	public Kitware.VTK.vtkAlgorithm parentVtkFilter;
+	[HideInInspector]
 	public Kitware.VTK.vtkAlgorithmOutput output;
-
 	[HideInInspector]
 	public VTK.FilterType InputType = VTK.FilterType.NotSet;
-
 	[HideInInspector]
 	public VTK.FilterType OutputType = VTK.FilterType.NotSet;
+
+	public virtual Kitware.VTK.vtkAlgorithm GetVtkFilter()
+	{
+		return this.vtkFilter;
+	}
+
+	public virtual void SetVtkFilter(Kitware.VTK.vtkAlgorithm vtkFilter)
+	{
+		this.vtkFilter = vtkFilter;
+	}
 
 	//Here set InpuType and OutputType
 	protected abstract void OnEnable();

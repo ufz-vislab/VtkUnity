@@ -74,96 +74,17 @@ NavMeshSettings:
     widthInaccuracy: 16.666666
     heightInaccuracy: 10
   m_NavMesh: {fileID: 0}
---- !u!1 &666880595
+--- !u!1 &304487094
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 4
   m_Component:
-  - 4: {fileID: 666880600}
-  - 20: {fileID: 666880599}
-  - 92: {fileID: 666880598}
-  - 124: {fileID: 666880597}
-  - 81: {fileID: 666880596}
-  m_Layer: 0
-  m_Name: Main Camera
-  m_TagString: MainCamera
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!81 &666880596
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 666880595}
-  m_Enabled: 1
---- !u!124 &666880597
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 666880595}
-  m_Enabled: 1
---- !u!92 &666880598
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 666880595}
-  m_Enabled: 1
---- !u!20 &666880599
-Camera:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 666880595}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: .192156866, g: .301960796, b: .474509805, a: .0196078438}
-  m_NormalizedViewPortRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
-  near clip plane: .300000012
-  far clip plane: 1000
-  field of view: 60
-  orthographic: 0
-  orthographic size: 5
-  m_Depth: -1
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 2147483647
-  m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
-  m_HDR: 0
-  m_OcclusionCulling: 1
---- !u!4 &666880600
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 666880595}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
---- !u!1 &1324561560
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 4
-  m_Component:
-  - 4: {fileID: 1324561563}
-  - 114: {fileID: 1324561562}
-  - 114: {fileID: 1324561561}
+  - 4: {fileID: 304487098}
+  - 114: {fileID: 304487097}
+  - 114: {fileID: 304487096}
+  - 114: {fileID: 304487095}
   m_Layer: 0
   m_Name: urach_borehole_kn_statistics_15.vtu
   m_TagString: Untagged
@@ -171,12 +92,118 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1324561561
+--- !u!114 &304487095
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1324561560}
+  m_GameObject: {fileID: 304487094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdf281a9d809bc74c8ab3611914f6895, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dataArray:
+  - PRESSURE1_average [P]
+  - PRESSURE1_minimum [P]
+  - PRESSURE1_maximum [P]
+  - PRESSURE1_stddev [P]
+  - TEMPERATURE1_average [P]
+  - TEMPERATURE1_minimum [P]
+  - TEMPERATURE1_maximum [P]
+  - TEMPERATURE1_stddev [P]
+  - VELOCITY_X1_average [P]
+  - VELOCITY_X1_minimum [P]
+  - VELOCITY_X1_maximum [P]
+  - VELOCITY_X1_stddev [P]
+  - VELOCITY_Y1_average [P]
+  - VELOCITY_Y1_minimum [P]
+  - VELOCITY_Y1_maximum [P]
+  - VELOCITY_Y1_stddev [P]
+  - VELOCITY_Z1_average [P]
+  - VELOCITY_Z1_minimum [P]
+  - VELOCITY_Z1_maximum [P]
+  - VELOCITY_Z1_stddev [P]
+  - DISPLACEMENT_X1_average [P]
+  - DISPLACEMENT_X1_minimum [P]
+  - DISPLACEMENT_X1_maximum [P]
+  - DISPLACEMENT_X1_stddev [P]
+  - DISPLACEMENT_Y1_average [P]
+  - DISPLACEMENT_Y1_minimum [P]
+  - DISPLACEMENT_Y1_maximum [P]
+  - DISPLACEMENT_Y1_stddev [P]
+  - DISPLACEMENT_Z1_average [P]
+  - DISPLACEMENT_Z1_minimum [P]
+  - DISPLACEMENT_Z1_maximum [P]
+  - DISPLACEMENT_Z1_stddev [P]
+  - STRESS_XX_average [P]
+  - STRESS_XX_minimum [P]
+  - STRESS_XX_maximum [P]
+  - STRESS_XX_stddev [P]
+  - STRESS_XY_average [P]
+  - STRESS_XY_minimum [P]
+  - STRESS_XY_maximum [P]
+  - STRESS_XY_stddev [P]
+  - STRESS_YY_average [P]
+  - STRESS_YY_minimum [P]
+  - STRESS_YY_maximum [P]
+  - STRESS_YY_stddev [P]
+  - STRESS_ZZ_average [P]
+  - STRESS_ZZ_minimum [P]
+  - STRESS_ZZ_maximum [P]
+  - STRESS_ZZ_stddev [P]
+  - STRESS_XZ_average [P]
+  - STRESS_XZ_minimum [P]
+  - STRESS_XZ_maximum [P]
+  - STRESS_XZ_stddev [P]
+  - STRESS_YZ_average [P]
+  - STRESS_YZ_minimum [P]
+  - STRESS_YZ_maximum [P]
+  - STRESS_YZ_stddev [P]
+  - STRAIN_XX_average [P]
+  - STRAIN_XX_minimum [P]
+  - STRAIN_XX_maximum [P]
+  - STRAIN_XX_stddev [P]
+  - STRAIN_XY_average [P]
+  - STRAIN_XY_minimum [P]
+  - STRAIN_XY_maximum [P]
+  - STRAIN_XY_stddev [P]
+  - STRAIN_YY_average [P]
+  - STRAIN_YY_minimum [P]
+  - STRAIN_YY_maximum [P]
+  - STRAIN_YY_stddev [P]
+  - STRAIN_ZZ_average [P]
+  - STRAIN_ZZ_minimum [P]
+  - STRAIN_ZZ_maximum [P]
+  - STRAIN_ZZ_stddev [P]
+  - STRAIN_XZ_average [P]
+  - STRAIN_XZ_minimum [P]
+  - STRAIN_XZ_maximum [P]
+  - STRAIN_XZ_stddev [P]
+  - STRAIN_YZ_average [P]
+  - STRAIN_YZ_minimum [P]
+  - STRAIN_YZ_maximum [P]
+  - STRAIN_YZ_stddev [P]
+  - velocity_average [P]
+  - velocity_minimum [P]
+  - velocity_maximum [P]
+  - velocity_stddev [P]
+  selectedDataArray: 0
+  Lut:
+  - BLUE_RED
+  - RED_BLUE
+  - RAINBOW
+  selectedLut: 0
+  typesOfColor:
+  - solid color
+  - data
+  selectedColorType: 0
+--- !u!114 &304487096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 304487094}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b05b1d76ae56c44cb2dcb1d0af3f01f, type: 3}
@@ -184,12 +211,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InputType: 0
   OutputType: 2
---- !u!114 &1324561562
+--- !u!114 &304487097
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1324561560}
+  m_GameObject: {fileID: 304487094}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 21048dfc3a182e54592635544a81e99f, type: 3}
@@ -197,7 +224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   filepath: E:/VtkUnity/Assets/StreamingAssets/Vtk-Data/urach_borehole_kn_statistics_15.vtu
   filename: urach_borehole_kn_statistics_15.vtu
-  startPosition: {x: 6.18431902, y: 4.83456516, z: -.623252988}
+  startPosition: {x: 0, y: -4000, z: 75}
   allFilters:
   - VTKFilterContour
   - VTKFilterGeometry
@@ -207,29 +234,29 @@ MonoBehaviour:
   selectedFilter: 0
   root:
     name: urach_borehole_kn_statistics_15.vtu
-    filter: {fileID: 1324561561}
+    filter: {fileID: 304487096}
     children: []
     isRoot: 1
-    properties: {fileID: 0}
+    properties: {fileID: 304487095}
   readerType: 2
   activeNode:
     name: urach_borehole_kn_statistics_15.vtu
-    filter: {fileID: 1324561561}
+    filter: {fileID: 304487096}
     children: []
     isRoot: 1
-    properties: {fileID: 0}
+    properties: {fileID: 304487095}
   unityObjects:
     keys: []
     values: []
   selectedFileIsValid: 1
---- !u!4 &1324561563
+--- !u!4 &304487098
 Transform:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1324561560}
+  m_GameObject: {fileID: 304487094}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.18431902, y: 4.83456516, z: -.623252988}
+  m_LocalPosition: {x: 0, y: -4000, z: 75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

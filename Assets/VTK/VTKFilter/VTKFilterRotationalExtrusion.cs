@@ -15,9 +15,6 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 	[HideInInspector]
 	public bool capping = true;
 
-	[HideInInspector]
-	public Kitware.VTK.vtkRotationalExtrusionFilter filter;
-
 	protected override void OnEnable ()
 	{
 		base.InputType = VTK.FilterType.PolyData;
@@ -26,7 +23,7 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 
 	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
-		filter = Kitware.VTK.vtkRotationalExtrusionFilter.New ();
+		Kitware.VTK.vtkRotationalExtrusionFilter filter = Kitware.VTK.vtkRotationalExtrusionFilter.New ();
 
 		filter.SetInputConnection (input);
 
@@ -36,6 +33,8 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 		filter.SetDeltaRadius (deltaRadius);
 		filter.SetCapping (Convert.ToInt32(capping));
 		filter.Update ();
+
+		base.SetVtkFilter (filter);
 
 		return filter.GetOutputPort ();
 	}

@@ -5,10 +5,9 @@ using System.Collections;
 public class VTKFilterContour : VTKFilter 
 {
 	[HideInInspector]
-	public string DataSet;
-
+	public int numContours = 0;
 	[HideInInspector]
-	public Kitware.VTK.vtkContourFilter filter;
+	public double[] range;
 
 	protected override void OnEnable ()
 	{
@@ -18,19 +17,26 @@ public class VTKFilterContour : VTKFilter
 
 	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
-		//vtkContourFilter will select the best contouring function for the given dataset type autoatically
-		filter = Kitware.VTK.vtkContourFilter.New ();
-		
-		filter.SetInputConnection (input);
+		Kitware.VTK.vtkContourFilter filter = Kitware.VTK.vtkContourFilter.New ();
 
-		filter.ComputeNormalsOn ();
+		Kitware.VTK.vtkDataSet dataSet = Kitware.VTK.vtkDataSet.SafeDownCast (base.parentVtkFilter.GetOutputDataObject (0));
 
-		/*
-		filter.SetInputArrayToProcess(0,0,0, (int)Kitware.VTK.vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, "Elevation");
-		for(int i = 0; i < 10; ++i)
-			filter.SetValue(i, i / 10.0);
-		filter.ComputeScalarsOn();
-		*/
+		if(dataSet != null)
+		{
+			Kitware.VTK.vtkPointData pointData = dataSet.GetPointData();
+
+			if(pointData != null)
+			{
+				range = pointData.GetScalars().GetRange();
+			}
+		}
+
+		filter.GenerateValues (numContours, range[0], range[1]);
+
+		filter.Update ();
+
+		base.SetVtkFilter (filter);
+
 		return filter.GetOutputPort();
 	}
 }

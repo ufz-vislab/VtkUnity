@@ -7,9 +7,6 @@ using System.Collections;
 [ExecuteInEditMode]
 public class VTKFilterGeometry : VTKFilter 
 {
-	[HideInInspector]
-	public Kitware.VTK.vtkGeometryFilter filter;
-
 	protected override void OnEnable ()
 	{
 		base.InputType = VTK.FilterType.UnstructuredGrid;
@@ -18,11 +15,13 @@ public class VTKFilterGeometry : VTKFilter
 
 	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
-		filter = Kitware.VTK.vtkGeometryFilter.New();
+		Kitware.VTK.vtkGeometryFilter filter = Kitware.VTK.vtkGeometryFilter.New();
 		
 		filter.SetInputConnection(input);
 
 		filter.Update ();
+
+		base.SetVtkFilter (filter);
 
 		return filter.GetOutputPort();
 	}

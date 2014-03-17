@@ -31,9 +31,6 @@ public class VTKFilterTransform : VTKFilter
 	[HideInInspector]
 	public Kitware.VTK.vtkTransform vtkTransform;
 
-	[HideInInspector]
-	public Kitware.VTK.vtkTransformFilter filter;
-
 	protected override void OnEnable ()
 	{
 		base.InputType = VTK.FilterType.PolyData;
@@ -43,7 +40,7 @@ public class VTKFilterTransform : VTKFilter
 	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
 	{
 		vtkTransform = Kitware.VTK.vtkTransform.New ();
-		filter = Kitware.VTK.vtkTransformFilter.New ();
+		Kitware.VTK.vtkTransformFilter filter = Kitware.VTK.vtkTransformFilter.New ();
 
 		filter.SetInputConnection (input);
 
@@ -54,6 +51,8 @@ public class VTKFilterTransform : VTKFilter
 		filter.SetTransform (vtkTransform);
 
 		filter.Update ();
+
+		base.SetVtkFilter (filter);
 
 		return filter.GetOutputPort();
 	}
