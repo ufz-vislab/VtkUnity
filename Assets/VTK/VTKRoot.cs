@@ -85,12 +85,17 @@ public class VTKRoot : MonoBehaviour
 			//Set filter
 			root.filter = gameObject.AddComponent<VTKFilterEmpty> ();
 			root.filter.OutputType = readerType;
+			root.filter.parentVtkFilter = null;
 		
 			if(readerType == VTK.FilterType.PolyData)
+			{
 				root.filter.UpdateFilter(polyDataReader.GetOutputPort());
+			}
 
 			if(readerType == VTK.FilterType.UnstructuredGrid)
+			{
 				root.filter.UpdateFilter(unstructuredGridReader.GetOutputPort());
+			}
 
 			//Set properties for root
 			root.properties = gameObject.AddComponent<VTKProperties> ();
@@ -144,6 +149,9 @@ public class VTKRoot : MonoBehaviour
 
 		if (newNode == null)
 						return;
+
+		//Set parent filter
+		newNode.filter.parentVtkFilter = newNode.parent.filter.GetVtkFilter ();
 
 		//Handle properties
 		if(newNode.filter.OutputType == VTK.FilterType.UnstructuredGrid)
@@ -399,6 +407,7 @@ public class VTKRoot : MonoBehaviour
 		if (node.isRoot) 
 		{
 			node.filter.OutputType = readerType;
+			node.filter.parentVtkFilter = null;
 
 			if(readerType == VTK.FilterType.PolyData)
 				node.filter.UpdateFilter(polyDataReader.GetOutputPort());
@@ -408,6 +417,7 @@ public class VTKRoot : MonoBehaviour
 		}
 		else
 		{
+			node.filter.parentVtkFilter = node.parent.filter.GetVtkFilter();
 			node.filter.UpdateFilter (node.parent.filter.output);
 		}
 

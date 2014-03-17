@@ -15,12 +15,10 @@ public class EditorVTKFilterContour : Editor
 		EditorGUI.BeginChangeCheck ();
 
 		EditorGUILayout.BeginHorizontal ();
-		/*
-		EditorGUILayout.LabelField ("DataSet: " + properties.pointArrays[properties.selectedPointArray]);
-
-		script.DataSet = properties.pointArrays[properties.selectedPointArray];
+		EditorGUILayout.LabelField ("Number of contours:");
+		script.numContours = EditorGUILayout.IntField (script.numContours);
 		EditorGUILayout.EndHorizontal ();
-		*/
+
 		if(EditorGUI.EndChangeCheck())
 		{
 			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
