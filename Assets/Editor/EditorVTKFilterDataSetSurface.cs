@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEditor;
+using System.Collections;
 
-[CustomEditor(typeof(VTKFilterGeometry))]
-public class EditorVTKFilterGeometry : Editor 
+[CustomEditor(typeof(VTKFilterDataSetSurface))]
+public class EditorVTKFilterDataSetSurface : Editor 
 {
 	public override void OnInspectorGUI()
 	{

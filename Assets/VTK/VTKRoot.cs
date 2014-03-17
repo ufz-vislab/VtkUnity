@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /*
- * Handleof vtk-filters for a given vtk-file
+ * Handle vtk-filters for a given vtk-file
  * */
 
 [ExecuteInEditMode]
@@ -21,7 +21,7 @@ public class VTKRoot : MonoBehaviour
 	public Kitware.VTK.vtkXMLPolyDataReader polyDataReader;
 
 	[HideInInspector]
-	public Kitware.VTK.vtkUnstructuredGridReader unstructuredGridReader;
+	public Kitware.VTK.vtkXMLUnstructuredGridReader unstructuredGridReader; 
 
 	//Filter stuff
 	[HideInInspector]
@@ -66,7 +66,7 @@ public class VTKRoot : MonoBehaviour
 
 		if(readerType == VTK.FilterType.UnstructuredGrid)
 		{
-			unstructuredGridReader = Kitware.VTK.vtkUnstructuredGridReader.New();
+			unstructuredGridReader = Kitware.VTK.vtkXMLUnstructuredGridReader.New();
 			unstructuredGridReader.SetFileName(filepath);
 			unstructuredGridReader.Update();
 		}
@@ -145,8 +145,15 @@ public class VTKRoot : MonoBehaviour
 		if (newNode == null)
 						return;
 
-		//Read properties
-		newNode.properties.Read ();
+		//Handle properties
+		if(newNode.filter.OutputType == VTK.FilterType.UnstructuredGrid)
+		{
+			newNode.properties = null;
+		}
+		else
+		{
+			newNode.properties.Read ();
+		}
 
 		//Hide filter editor
 		newNode.filter.hideFlags = HideFlags.HideInInspector;
@@ -222,7 +229,7 @@ public class VTKRoot : MonoBehaviour
 		{
 			activeNode.filter.hideFlags = HideFlags.HideInInspector;
 		}
-		
+
 		activeNode.properties.hideFlags = HideFlags.HideInInspector;
 	
 		//Set active node
@@ -235,7 +242,9 @@ public class VTKRoot : MonoBehaviour
 		}
 	
 		if(!activeNode.hasChildren) //Show properties
+		{
 			activeNode.properties.hideFlags = HideFlags.None;
+		}
 	}
 
 	/*

@@ -17,7 +17,8 @@ public static class VTK
 			"VTKFilterContour",
 			"VTKFilterGeometry",
 			"VTKFilterRotationalExtrusion",
-			"VTKFilterTransform"
+			"VTKFilterTransform",
+			"VTKFilterDataSetSurface"
 		};
 
 		return filters;

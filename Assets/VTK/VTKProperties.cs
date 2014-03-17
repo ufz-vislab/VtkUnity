@@ -25,6 +25,8 @@ public class VTKProperties : MonoBehaviour
 
 		Kitware.VTK.vtkXMLPolyDataReader polyDataReader;
 
+		Kitware.VTK.vtkXMLUnstructuredGridReader unstructuredGridReader;
+
 		if( readerType == VTK.FilterType.PolyData )
 		{
 			polyDataReader = root.polyDataReader;
@@ -41,6 +43,25 @@ public class VTKProperties : MonoBehaviour
 			for (int i = 0; i < polyDataReader.GetNumberOfPointArrays(); i++) 
 			{
 				dataArray[polyDataReader.GetNumberOfCellArrays() + i] = polyDataReader.GetPointArrayName(i) + " [P]";
+			}
+		}
+
+		if(readerType == VTK.FilterType.UnstructuredGrid)
+		{
+			unstructuredGridReader = root.unstructuredGridReader;
+
+			dataArray = new string[unstructuredGridReader.GetNumberOfPointArrays() + unstructuredGridReader.GetNumberOfCellArrays()];
+
+			//Cell data
+			for (int i = 0; i < unstructuredGridReader.GetNumberOfCellArrays(); i++) 
+			{
+				dataArray[i] = unstructuredGridReader.GetCellArrayName(i) + " [C]";
+			}
+			
+			//Point data
+			for (int i = 0; i < unstructuredGridReader.GetNumberOfPointArrays(); i++) 
+			{
+				dataArray[unstructuredGridReader.GetNumberOfCellArrays() + i] = unstructuredGridReader.GetPointArrayName(i) + " [P]";
 			}
 		}
 	}
