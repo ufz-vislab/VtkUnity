@@ -37,12 +37,13 @@ public class VTKFilterTransform : VTKFilter
 		base.OutputType = VTK.FilterType.PolyData;
 	}
 
-	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
+	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
-		vtkTransform = Kitware.VTK.vtkTransform.New ();
 		Kitware.VTK.vtkTransformFilter filter = Kitware.VTK.vtkTransformFilter.New ();
 
-		filter.SetInputConnection (input);
+		vtkTransform = Kitware.VTK.vtkTransform.New ();
+
+		filter.SetInputConnection (input.GetOutputPort());
 
 		SetTranslation ();
 		SetRotation ();
@@ -52,9 +53,7 @@ public class VTKFilterTransform : VTKFilter
 
 		filter.Update ();
 
-		base.SetVtkFilter (filter);
-
-		return filter.GetOutputPort();
+		vtkFilter = filter;
 	}
 
 	public void SetTranslation ()

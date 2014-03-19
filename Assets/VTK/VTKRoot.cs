@@ -85,16 +85,16 @@ public class VTKRoot : MonoBehaviour
 			//Set filter
 			root.filter = gameObject.AddComponent<VTKFilterEmpty> ();
 			root.filter.OutputType = readerType;
-			root.filter.parentVtkFilter = null;
+			root.filter.node = root;
 		
 			if(readerType == VTK.FilterType.PolyData)
 			{
-				root.filter.UpdateFilter(polyDataReader.GetOutputPort());
+				root.filter.vtkFilter = polyDataReader;
 			}
 
 			if(readerType == VTK.FilterType.UnstructuredGrid)
 			{
-				root.filter.UpdateFilter(unstructuredGridReader.GetOutputPort());
+				root.filter.vtkFilter = unstructuredGridReader;
 			}
 
 			//Set properties for root
@@ -104,7 +104,7 @@ public class VTKRoot : MonoBehaviour
 			//Show root
 			if(readerType == VTK.FilterType.PolyData)
 			{
-				VtkToUnity vtkToUnity = new VtkToUnity(root.filter.output, gameObject);
+				VtkToUnity vtkToUnity = new VtkToUnity(root.filter.vtkFilter.GetOutputPort(), gameObject);
 				vtkToUnity.ColorBy (Color.magenta);
 				vtkToUnity.Update ();
 			
@@ -150,8 +150,8 @@ public class VTKRoot : MonoBehaviour
 		if (newNode == null)
 						return;
 
-		//Set parent filter
-		newNode.filter.parentVtkFilter = newNode.parent.filter.GetVtkFilter ();
+		//Set node reference
+		newNode.filter.node = newNode;
 
 		//Handle properties
 		if(newNode.filter.OutputType == VTK.FilterType.UnstructuredGrid)
@@ -189,6 +189,7 @@ public class VTKRoot : MonoBehaviour
 		if (node.isRoot)
 						return;
 
+		Debug.LogWarning("Remove: " + node.name);
 		VTKNode parent = node.parent;
 
 		//Delete all unity objects node is part of
@@ -212,7 +213,7 @@ public class VTKRoot : MonoBehaviour
 			if(!parent.hasChildren)
 			{
 				gameObject.renderer.enabled = true;
-				unityObjects.Set(GetUnityObjectName(root), new VtkToUnity(root.filter.output, gameObject));
+				unityObjects.Set(GetUnityObjectName(root), new VtkToUnity(root.filter.vtkFilter.GetOutputPort(), gameObject));
 				UpdateProperties(root);
 			}
 		}
@@ -255,6 +256,7 @@ public class VTKRoot : MonoBehaviour
 		}
 	}
 
+	//TODO refactoring!!!
 	/*
 	 * Update or extend existing unity object or create new one
 	 * */
@@ -268,7 +270,7 @@ public class VTKRoot : MonoBehaviour
 
 		if (unityObjects.TryGetValue(name, out vtkToUnity)) //Update existing unity object
 		{
-			vtkToUnity.triangleFilter.SetInputConnection(node.filter.output);
+			vtkToUnity.triangleFilter.SetInputConnection(node.filter.vtkFilter.GetOutputPort());
 		} 
 		else //New filter
 		{
@@ -287,6 +289,7 @@ public class VTKRoot : MonoBehaviour
 			if(parent.isRoot || parent.children.Count > 1) //New
 			{
 				Debug.Log("Create new outputobject " + name);
+
 				//Create new gameobject
 				GameObject go =  new GameObject(name);
 
@@ -294,29 +297,47 @@ public class VTKRoot : MonoBehaviour
 				go.transform.parent = gameObject.transform;
 
 				//Create new vtkToUnity and apply filter
-				vtkToUnity = new VtkToUnity(node.filter.output, go);
+				vtkToUnity = new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), go);
 
 				//Add it to the list
 				unityObjects.Add(go.name, vtkToUnity);
 			} 
-			else //Extending
+			else //Extend / reduce 
 			{
-				Debug.Log("Extending: " + parentName + " to " + name);
-
-				//Get unity object to extend
-				GameObject go = FindUnityObject(parentName);
-
 				//Get vtkToUnity
-				unityObjects.TryGetValue(parentName, out vtkToUnity);
+				if(unityObjects.TryGetValue(parentName, out vtkToUnity))
+				{
+					Debug.Log("Extend " + parentName + " to " + name);
 
-				//Rename unity object
-				go.name = name;
+					//Get unity object to extend
+					GameObject go = FindUnityObject(parentName);
 
-				//Remove old dictionary entry
-				unityObjects.Remove(parentName);
+					//Rename unity object
+					go.name = name;
+					
+					//Remove old dictionary entry
+					unityObjects.Remove(parentName);
+					
+					//Add new dictionary entry
+					unityObjects.Add(name, vtkToUnity);
+				}
+				else
+				{
+					Debug.Log("Reduce ??? to " + name);
 
-				//Add new dictionary entry
-				unityObjects.Add(name, vtkToUnity);
+					//Create new gameobject
+					GameObject go =  new GameObject(name);
+					
+					//Put new gameobject as child
+					go.transform.parent = gameObject.transform;
+					
+					//Create new vtkToUnity and apply filter
+					vtkToUnity = new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), go);
+					
+					//Add it to the list
+					unityObjects.Add(go.name, vtkToUnity);
+				}
+
 			}
 		}
 
@@ -333,7 +354,7 @@ public class VTKRoot : MonoBehaviour
 
 		unityObjects.TryGetValue (name, out vtkToUnity);
 
-		vtkToUnity.triangleFilter.SetInputConnection(node.filter.output);
+		vtkToUnity.triangleFilter.SetInputConnection(node.filter.vtkFilter.GetOutputPort());
 
 		//Set properties
 		VTKProperties properties = node.properties;
@@ -380,7 +401,7 @@ public class VTKRoot : MonoBehaviour
 		Debug.Log ("Modifie: " + node.name);
 
 		//Calculate filter output based on parent filter
-		node.filter.UpdateFilter (node.parent.filter.output);
+		node.filter.UpdateFilter (node.parent.filter.vtkFilter);
 
 		if(node.hasChildren)
 		{
@@ -407,18 +428,21 @@ public class VTKRoot : MonoBehaviour
 		if (node.isRoot) 
 		{
 			node.filter.OutputType = readerType;
-			node.filter.parentVtkFilter = null;
 
 			if(readerType == VTK.FilterType.PolyData)
-				node.filter.UpdateFilter(polyDataReader.GetOutputPort());
+			{
+				node.filter.vtkFilter = polyDataReader;
+			}
 
 			if(readerType == VTK.FilterType.UnstructuredGrid)
-				node.filter.UpdateFilter(unstructuredGridReader.GetOutputPort());
+			{
+				node.filter.vtkFilter = unstructuredGridReader;
+			}
 		}
 		else
 		{
-			node.filter.parentVtkFilter = node.parent.filter.GetVtkFilter();
-			node.filter.UpdateFilter (node.parent.filter.output);
+			node.filter.node = node;
+			node.filter.UpdateFilter (node.parent.filter.vtkFilter);
 		}
 
 		//Read properties
@@ -429,7 +453,7 @@ public class VTKRoot : MonoBehaviour
 		
 		if(unityObjects.TryGetValue (name, out vtkToUnity))
 		{
-			unityObjects.Set(name, new VtkToUnity(node.filter.output, FindUnityObject(name)));
+			unityObjects.Set(name, new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), FindUnityObject(name)));
 			UpdateProperties(node);
 		}
 

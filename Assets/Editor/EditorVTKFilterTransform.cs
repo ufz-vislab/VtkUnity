@@ -18,7 +18,6 @@ public class EditorVTKFilterTransform : Editor
 		script.translateX = EditorGUILayout.FloatField (script.translateX);
 		script.translateY = EditorGUILayout.FloatField (script.translateY);
 		script.translateZ = EditorGUILayout.FloatField (script.translateZ);
-
 		EditorGUILayout.EndHorizontal ();
 
 		//Rotate

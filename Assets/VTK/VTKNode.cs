@@ -31,13 +31,14 @@ public class VTKNode
 
 	public VTKNode AddChild(VTKNode node)
 	{
+		/*
 		if (!VTK.ApplicableFilters (this, node))
 		{
 			Object.DestroyImmediate(node.filter);
 			Object.DestroyImmediate(node.properties);
 
 			return null;
-		}
+		}*/
 
 		if (children == null) 
 		{
@@ -51,15 +52,17 @@ public class VTKNode
 
 	/*
 	 * Also removes drop-down filters
+	 * Only call on root
 	 * */
 	public void RemoveChild(VTKNode node)
 	{
 		if (node.isRoot)
 			return;
 
+		Debug.LogWarning ("remove in node: " + node.name);
 		//Get node
-		VTKNode toRemove = this.GetChild (node);
-	
+		VTKNode toRemove = GetChild (node);
+
 		//Get parent
 		VTKNode parent = toRemove.parent;
 
@@ -78,10 +81,8 @@ public class VTKNode
 		//Remove properties script from editor
 		Object.DestroyImmediate(toRemove.properties);
 
+		//Remove node
 		parent.children.Remove (toRemove);
-
-		if (parent.children.Count == 0)
-			parent.children = null;
 	}
 
 	/* 

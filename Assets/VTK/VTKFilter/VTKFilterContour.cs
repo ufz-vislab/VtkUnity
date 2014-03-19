@@ -5,38 +5,49 @@ using System.Collections;
 public class VTKFilterContour : VTKFilter 
 {
 	[HideInInspector]
-	public int numContours = 0;
-	[HideInInspector]
+	public int numContours = 10;
+
 	public double[] range;
 
 	protected override void OnEnable ()
 	{
-		base.InputType = VTK.FilterType.UnstructuredGrid;
+		base.InputType = VTK.FilterType.PolyData;
 		base.OutputType = VTK.FilterType.PolyData;
 	}
 
-	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
+	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
 		Kitware.VTK.vtkContourFilter filter = Kitware.VTK.vtkContourFilter.New ();
 
-		Kitware.VTK.vtkDataSet dataSet = Kitware.VTK.vtkDataSet.SafeDownCast (base.parentVtkFilter.GetOutputDataObject (0));
+		filter.SetInputConnection (input.GetOutputPort());
+
+		Kitware.VTK.vtkDataSet dataSet = Kitware.VTK.vtkDataSet.SafeDownCast (input.GetOutputDataObject (0));
+
+		filter.SetInputArrayToProcess(0, 0, 0, (int)Kitware.VTK.vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, node.properties.dataArray [0]);
 
 		if(dataSet != null)
 		{
 			Kitware.VTK.vtkPointData pointData = dataSet.GetPointData();
-
+		
 			if(pointData != null)
 			{
-				range = pointData.GetScalars().GetRange();
+				//Debug.LogWarning(pointData.ToString());
+				//Debug.LogWarning(pointData.GetScalars().ToString());
+				//Debug.LogWarning(pointData.GetScalars().GetRange().ToString());
+				//pointData.Update();
+				//range = pointData.GetScalars().GetRange();
 			}
 		}
 
-		filter.GenerateValues (numContours, range[0], range[1]);
+		filter.GenerateValues (1, 0, 0);
+		/*
+		filter.ComputeNormalsOn();
+		filter.ComputeScalarsOn ();
+		*/
+		//filter.GenerateValues (10, 0, 1);
 
 		filter.Update ();
 
-		base.SetVtkFilter (filter);
-
-		return filter.GetOutputPort();
+		base.vtkFilter = filter;
 	}
 }
