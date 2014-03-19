@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 [ExecuteInEditMode]
@@ -10,16 +10,14 @@ public class VTKFilterDataSetSurface : VTKFilter
 		base.OutputType = VTK.FilterType.PolyData;
 	}
 	
-	protected override Kitware.VTK.vtkAlgorithmOutput GenerateOutput(Kitware.VTK.vtkAlgorithmOutput input)
+	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
 		Kitware.VTK.vtkDataSetSurfaceFilter filter = Kitware.VTK.vtkDataSetSurfaceFilter.New ();
 		
-		filter.SetInputConnection(input);
+		filter.SetInputConnection(input.GetOutputPort());
 		
 		filter.Update ();
 
-		base.SetVtkFilter (filter);
-		
-		return filter.GetOutputPort();
+		base.vtkFilter = filter;
 	}
 }
