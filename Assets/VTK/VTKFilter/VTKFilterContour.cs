@@ -1,13 +1,14 @@
+using System;
 using UnityEngine;
-using System.Collections;
+using Kitware.VTK;
 
 [ExecuteInEditMode]
-public class VTKFilterContour : VTKFilter 
+public class VTKFilterContour : VTKFilter
 {
-	[HideInInspector]
-	public int numContours = 10;
+	public int numContours;
+	public Vector2 range;
 
-	public double[] range;
+	protected double[] dataRange = new double[2];
 
 	protected override void OnEnable ()
 	{
@@ -15,39 +16,56 @@ public class VTKFilterContour : VTKFilter
 		base.OutputType = VTK.FilterType.PolyData;
 	}
 
-	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
+	protected void Reset()
 	{
-		Kitware.VTK.vtkContourFilter filter = Kitware.VTK.vtkContourFilter.New ();
+		numContours = 10;
+		range = Vector2.zero;
+		vtkFilter = vtkContourFilter.New();
+	}
 
-		filter.SetInputConnection (input.GetOutputPort());
+	protected void OnValidate()
+	{
+		// Check for allowed contour numbers
+		if (numContours < 1)
+			numContours = 1;
+		if (numContours > 30)
+			numContours = 30;
 
-		Kitware.VTK.vtkDataSet dataSet = Kitware.VTK.vtkDataSet.SafeDownCast (input.GetOutputDataObject (0));
+		// Check for allowed data range
+		if (range.x < dataRange[0])
+			range.x = (float)dataRange[0];
+		if (range.x > dataRange[1])
+			range.x = (float)dataRange[1];
+		if (range.y > dataRange[1])
+			range.y = (float) dataRange[1];
+		if (range.y < dataRange[0])
+			range.y = (float) dataRange[0];
 
-		filter.SetInputArrayToProcess(0, 0, 0, (int)Kitware.VTK.vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, node.properties.dataArray [0]);
+		VTKRoot root = gameObject.GetComponent<VTKRoot>();
+		root.Modifie(root.activeNode);
+	}
+
+	public override void UpdateFilter(vtkAlgorithm input)
+	{
+		vtkFilter.SetInputConnection(input.GetOutputPort());
+		vtkDataSet dataSet = vtkDataSet.SafeDownCast (input.GetOutputDataObject (0));
+		vtkFilter.SetInputArrayToProcess(0, 0, 0, (int)vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, "PRESSURE1_average");
 
 		if(dataSet != null)
 		{
-			Kitware.VTK.vtkPointData pointData = dataSet.GetPointData();
-		
+			vtkPointData pointData = dataSet.GetPointData();
 			if(pointData != null)
 			{
-				//Debug.LogWarning(pointData.ToString());
-				//Debug.LogWarning(pointData.GetScalars().ToString());
-				//Debug.LogWarning(pointData.GetScalars().GetRange().ToString());
-				//pointData.Update();
-				//range = pointData.GetScalars().GetRange();
+				pointData.SetActiveScalars("PRESSURE1_average");
+				dataRange = pointData.GetScalars().GetRange();
+				// Sets initial range
+				if(range == Vector2.zero)
+					range = new Vector2((float)dataRange[0], (float)dataRange[1]);
 			}
 		}
 
-		filter.GenerateValues (1, 0, 0);
-		/*
-		filter.ComputeNormalsOn();
-		filter.ComputeScalarsOn ();
-		*/
-		//filter.GenerateValues (10, 0, 1);
-
-		filter.Update ();
-
-		base.vtkFilter = filter;
+		((vtkContourFilter)vtkFilter).GenerateValues(numContours, range.x, range.y);
+		((vtkContourFilter)vtkFilter).ComputeScalarsOn();
+		vtkFilter.Update();
 	}
 }
