@@ -1,4 +1,5 @@
 using UnityEngine;
+using Kitware.VTK;
 
 /*
  * Translate, rotate or scale
@@ -29,31 +30,23 @@ public class VTKFilterTransform : VTKFilter
 	public float scaleZ = 1.0f;
 
 	[HideInInspector]
-	public Kitware.VTK.vtkTransform vtkTransform;
-
-	protected override void OnEnable ()
-	{
-		base.InputType = VTK.FilterType.PolyData;
-		base.OutputType = VTK.FilterType.PolyData;
-	}
+	public vtkTransform vtkTransform; 
 
 	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
-		Kitware.VTK.vtkTransformFilter filter = Kitware.VTK.vtkTransformFilter.New ();
+		vtkFilter = Kitware.VTK.vtkTransformFilter.New ();
 
 		vtkTransform = Kitware.VTK.vtkTransform.New ();
 
-		filter.SetInputConnection (input.GetOutputPort());
+		vtkFilter.SetInputConnection (input.GetOutputPort());
 
 		SetTranslation ();
 		SetRotation ();
 		SetScale ();
 
-		filter.SetTransform (vtkTransform);
+		((vtkTransformFilter)vtkFilter).SetTransform (vtkTransform);
 
-		filter.Update ();
-
-		vtkFilter = filter;
+		vtkFilter.Update ();
 	}
 
 	public void SetTranslation ()

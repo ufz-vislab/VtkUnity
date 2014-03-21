@@ -46,10 +46,10 @@ public class EditorVTKRoot : Editor
 			{
 				//Set data type
 				if(script.filepath.EndsWith(".vtp"))
-					script.readerType = VTK.FilterType.PolyData;
+					script.readerType = VTK.ReaderType.PolyData;
 
 				if(script.filepath.EndsWith(".vtu"))
-					script.readerType = VTK.FilterType.UnstructuredGrid;
+					script.readerType = VTK.ReaderType.UnstructuredGrid;
 
 				script.selectedFileIsValid = true;
 				script.Initialize();
@@ -85,11 +85,11 @@ public class EditorVTKRoot : Editor
 		EditorGUILayout.EndHorizontal ();
 		
 		EditorGUILayout.BeginHorizontal ();
-		script.selectedFilter = EditorGUILayout.Popup (script.selectedFilter, script.allFilters);
+		script.selectedFilter = EditorGUILayout.Popup (script.selectedFilter, script.supportedFilters);
 		
 		if (GUILayout.Button ("Add")) 
 		{
-			script.AddFilter (script.allFilters[script.selectedFilter]);
+			script.AddFilter (script.supportedFilters[script.selectedFilter]);
 		}
 		EditorGUILayout.EndHorizontal ();
 

@@ -1,20 +1,17 @@
 using System;
 using UnityEngine;
 using Kitware.VTK;
+using System.Collections;
 
 [ExecuteInEditMode]
 public class VTKFilterContour : VTKFilter
 {
-	public int numContours;
+	public int numContours = 10;
 	public Vector2 range;
 
 	protected double[] dataRange = new double[2];
 
-	protected override void OnEnable ()
-	{
-		base.InputType = VTK.FilterType.PolyData;
-		base.OutputType = VTK.FilterType.PolyData;
-	}
+	public string[] useInPlaymode = {"numContours"};
 
 	protected void Reset()
 	{
@@ -22,9 +19,10 @@ public class VTKFilterContour : VTKFilter
 		range = Vector2.zero;
 		vtkFilter = vtkContourFilter.New();
 	}
-
+	/*
 	protected void OnValidate()
 	{
+		Debug.LogWarning ("val con");
 		// Check for allowed contour numbers
 		if (numContours < 1)
 			numContours = 1;
@@ -40,13 +38,18 @@ public class VTKFilterContour : VTKFilter
 			range.y = (float) dataRange[1];
 		if (range.y < dataRange[0])
 			range.y = (float) dataRange[0];
-
+		
 		VTKRoot root = gameObject.GetComponent<VTKRoot>();
-		root.Modifie(root.activeNode);
+
+		if(root.dataIsPreloaded)
+			root.Modifie(root.activeNode);
 	}
+	*/
 
 	public override void UpdateFilter(vtkAlgorithm input)
 	{
+		vtkFilter = vtkContourFilter.New ();
+
 		vtkFilter.SetInputConnection(input.GetOutputPort());
 		vtkDataSet dataSet = vtkDataSet.SafeDownCast (input.GetOutputDataObject (0));
 		vtkFilter.SetInputArrayToProcess(0, 0, 0, (int)vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, "PRESSURE1_average");

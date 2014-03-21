@@ -10,7 +10,7 @@ public class EditorVTKFilterRotationalExtrusion : Editor
 
 		DrawDefaultInspector ();
 
-		EditorGUI.BeginChangeCheck ();
+//		EditorGUI.BeginChangeCheck ();
 
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Resolution:");
@@ -37,13 +37,13 @@ public class EditorVTKFilterRotationalExtrusion : Editor
 		script.deltaRadius = EditorGUILayout.FloatField(script.deltaRadius);
 		EditorGUILayout.EndHorizontal ();
 
-
+		/*
 		if (EditorGUI.EndChangeCheck ()) 
 		{
 			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
 			root.Modifie(root.activeNode);
 		}
-
+*/
 		EditorUtility.SetDirty (target);
 	}
 }

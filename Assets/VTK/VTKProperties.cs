@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Kitware.VTK;
 
 [ExecuteInEditMode]
 public class VTKProperties : MonoBehaviour 
@@ -21,13 +22,13 @@ public class VTKProperties : MonoBehaviour
 	{
 		VTKRoot root = gameObject.GetComponent<VTKRoot> ();
 
-		VTK.FilterType readerType = root.readerType;
+		VTK.ReaderType readerType = root.readerType;
 
-		Kitware.VTK.vtkXMLPolyDataReader polyDataReader;
+		vtkXMLPolyDataReader polyDataReader;
 
-		Kitware.VTK.vtkXMLUnstructuredGridReader unstructuredGridReader;
+		vtkXMLUnstructuredGridReader unstructuredGridReader;
 
-		if( readerType == VTK.FilterType.PolyData )
+		if( readerType == VTK.ReaderType.PolyData )
 		{
 			polyDataReader = root.polyDataReader;
 
@@ -46,7 +47,7 @@ public class VTKProperties : MonoBehaviour
 			}
 		}
 
-		if(readerType == VTK.FilterType.UnstructuredGrid)
+		if(readerType == VTK.ReaderType.UnstructuredGrid)
 		{
 			unstructuredGridReader = root.unstructuredGridReader;
 

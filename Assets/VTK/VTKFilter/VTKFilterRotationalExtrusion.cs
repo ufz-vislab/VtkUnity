@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using Kitware.VTK;
 
 [ExecuteInEditMode]
 public class VTKFilterRotationalExtrusion : VTKFilter 
@@ -15,25 +16,27 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 	[HideInInspector]
 	public bool capping = true;
 
-	protected override void OnEnable ()
+	protected void Reset ()
 	{
-		base.InputType = VTK.FilterType.PolyData;
-		base.OutputType = VTK.FilterType.PolyData;
+		resolution = 12;
+		angle = 360;
+		translation = 0.0f;
+		deltaRadius = 0.0f;
+		vtkFilter = vtkRotationalExtrusionFilter.New ();
 	}
 
 	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
-		Kitware.VTK.vtkRotationalExtrusionFilter filter = Kitware.VTK.vtkRotationalExtrusionFilter.New ();
+		vtkFilter = vtkRotationalExtrusionFilter.New ();
 
-		filter.SetInputConnection (input.GetOutputPort());
+		vtkFilter.SetInputConnection (input.GetOutputPort());
 
-		filter.SetResolution (resolution);
-		filter.SetAngle (angle);
-		filter.SetTranslation (translation);
-		filter.SetDeltaRadius (deltaRadius);
-		filter.SetCapping (Convert.ToInt32(capping));
-		filter.Update ();
+		((vtkRotationalExtrusionFilter)vtkFilter).SetResolution (resolution);
+		((vtkRotationalExtrusionFilter)vtkFilter).SetAngle (angle);
+		((vtkRotationalExtrusionFilter)vtkFilter).SetTranslation (translation);
+		((vtkRotationalExtrusionFilter)vtkFilter).SetDeltaRadius (deltaRadius);
+		((vtkRotationalExtrusionFilter)vtkFilter).SetCapping (Convert.ToInt32(capping));
 
-		base.vtkFilter = filter;
+		vtkFilter.Update ();
 	}
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Kitware.VTK;
 
 /*
  * Handle vtk-filters for a given vtk-file
@@ -14,24 +15,24 @@ public class VTKRoot : MonoBehaviour
 	[HideInInspector]
 	public string filename;
 
+	//Reader stuff
+	[HideInInspector]
+	public vtkXMLPolyDataReader polyDataReader;
+	[HideInInspector]
+	public vtkXMLUnstructuredGridReader unstructuredGridReader;
+
 	[HideInInspector]
 	public Vector3 startPosition;
 
-	[HideInInspector]
-	public Kitware.VTK.vtkXMLPolyDataReader polyDataReader;
-
-	[HideInInspector]
-	public Kitware.VTK.vtkXMLUnstructuredGridReader unstructuredGridReader;
-
 	//Filter stuff
 	[HideInInspector]
-	public string[] allFilters;
+	public string[] supportedFilters;
 	[HideInInspector]
 	public int selectedFilter;
 	[HideInInspector]
-	public VTKNode root = new VTKNode(null, null, null); //Empty node as root
+	public VTKNode root = new VTKNode(null, null, null);
 	[HideInInspector]
-	public VTK.FilterType readerType;
+	public VTK.ReaderType readerType;
 	[HideInInspector]
 	public VTKNode activeNode;
 	[HideInInspector]
@@ -41,7 +42,7 @@ public class VTKRoot : MonoBehaviour
 	[HideInInspector]
 	public bool selectedFileIsValid = false;
 
-	public void Reset()
+	public void OnEnable()
 	{
 		if (selectedFileIsValid)
 		{
@@ -51,58 +52,55 @@ public class VTKRoot : MonoBehaviour
 
 	public void Initialize()
 	{
-		filename = GetFileName (filepath);
+		if(filename == null)
+			filename = GetFileName (filepath);
 
 		if(gameObject.name != filename)
 			gameObject.name = filename;
 
-		//Initialize vtk-file-reader
-		if(readerType == VTK.FilterType.PolyData)
+		//Initialize file reader
+		if(readerType == VTK.ReaderType.PolyData)
 		{
-			polyDataReader = Kitware.VTK.vtkXMLPolyDataReader.New ();
+			polyDataReader = vtkXMLPolyDataReader.New ();
 			polyDataReader.SetFileName(filepath);
 			polyDataReader.Update();
 		}
 
-		if(readerType == VTK.FilterType.UnstructuredGrid)
+		if(readerType == VTK.ReaderType.UnstructuredGrid)
 		{
-			unstructuredGridReader = Kitware.VTK.vtkXMLUnstructuredGridReader.New();
+			unstructuredGridReader = vtkXMLUnstructuredGridReader.New();
 			unstructuredGridReader.SetFileName(filepath);
 			unstructuredGridReader.Update();
 		}
 
-		allFilters = VTK.GetFiltersByName ();
+		supportedFilters = VTK.GetSupportedFiltersByName ();
 
 		bool initialUse = false;
 
 		//If it is a new object, create a vtkToUnity for root node
 		if (unityObjects.Count == 0)
 		{
-			Debug.Log("Creating entry for root node");
+			Debug.Log("Create root node");
 
 			root.name = filename;
 
-			//Set filter
-			root.filter = gameObject.AddComponent<VTKFilterEmpty> ();
-			root.filter.OutputType = readerType;
-			root.filter.node = root;
+			root.filter = gameObject.AddComponent<VTKFilterRootNode> ();
 
-			if(readerType == VTK.FilterType.PolyData)
+			if(readerType == VTK.ReaderType.PolyData)
 			{
 				root.filter.vtkFilter = polyDataReader;
 			}
 
-			if(readerType == VTK.FilterType.UnstructuredGrid)
+			if(readerType == VTK.ReaderType.UnstructuredGrid)
 			{
 				root.filter.vtkFilter = unstructuredGridReader;
 			}
 
-			//Set properties for root
 			root.properties = gameObject.AddComponent<VTKProperties> ();
 			root.properties.Read();
 
 			//Show root
-			if(readerType == VTK.FilterType.PolyData)
+			if(readerType == VTK.ReaderType.PolyData)
 			{
 				VtkToUnity vtkToUnity = new VtkToUnity(root.filter.vtkFilter.GetOutputPort(), gameObject);
 				vtkToUnity.ColorBy (Color.magenta);
@@ -125,7 +123,7 @@ public class VTKRoot : MonoBehaviour
 			Debug.Log ("Done");
 
 			Debug.Log("Initialize all nodes, filters and objects...");
-			InitializeAll (root);
+			PreloadData (root);
 			Debug.Log ("Done");
 
 			//Hide root object
@@ -136,12 +134,12 @@ public class VTKRoot : MonoBehaviour
 			}
 		}
 
-		SetActiveNode (root); //Clear old scripts
+		SetActiveNode (root);
 	}
 
 	/*
 	 * Create node for new filter
-	 * Compute new filter based on parent output
+	 * Compute new filter
 	 * Hide root unity object
 	 * */
 	public void AddFilter(string filterName)
@@ -150,33 +148,21 @@ public class VTKRoot : MonoBehaviour
 
 		if (newNode == null)
 						return;
-
-		//Set node reference
+		
 		newNode.filter.node = newNode;
 
-		//Handle properties
-		if(newNode.filter.OutputType == VTK.FilterType.UnstructuredGrid)
-		{
-			newNode.properties = null;
-		}
-		else
-		{
-			newNode.properties.Read ();
-		}
+		newNode.properties.Read ();
 
-		//Hide filter editor
+		//Hide editor
 		newNode.filter.hideFlags = HideFlags.HideInInspector;
-
-		//Set new node as active
+		
 		SetActiveNode (newNode);
-
-		//Apply new filter settings
+		
 		Modifie (activeNode);
 
 		//Clear root object
 		if(root.hasChildren)
 		{
-			//gameObject.GetComponent<MeshFilter>().renderer.enabled = false;
 			if(gameObject.renderer)
 				gameObject.renderer.enabled = false;
 		}
@@ -264,13 +250,13 @@ public class VTKRoot : MonoBehaviour
 	 * */
 	public void UpdateUnityObject(VTKNode node)
 	{
-		string name = GetUnityObjectName (node);
+		string unityObjectName = GetUnityObjectName (node);
 
-		Debug.Log ("UpdateUnityObject: " + name);
+		Debug.Log ("UpdateUnityObject: " + unityObjectName);
 
 		VtkToUnity vtkToUnity;
 
-		if (unityObjects.TryGetValue(name, out vtkToUnity)) //Update existing unity object
+		if (unityObjects.TryGetValue(unityObjectName, out vtkToUnity)) //Update existing unity object
 		{
 			vtkToUnity.triangleFilter.SetInputConnection(node.filter.vtkFilter.GetOutputPort());
 		}
@@ -290,12 +276,11 @@ public class VTKRoot : MonoBehaviour
 
 			if(parent.isRoot || parent.children.Count > 1) //New
 			{
-				Debug.Log("Create new outputobject " + name);
+				Debug.Log("Create new outputobject " + unityObjectName);
 
 				//Create new gameobject
-				GameObject go =  new GameObject(name);
+				GameObject go =  new GameObject(unityObjectName);
 
-				//Put new gameobject as child
 				go.transform.parent = gameObject.transform;
 
 				//Create new vtkToUnity and apply filter
@@ -309,26 +294,26 @@ public class VTKRoot : MonoBehaviour
 				//Get vtkToUnity
 				if(unityObjects.TryGetValue(parentName, out vtkToUnity))
 				{
-					Debug.Log("Extend " + parentName + " to " + name);
+					Debug.Log("Extend " + parentName + " to " + unityObjectName);
 
 					//Get unity object to extend
 					GameObject go = FindUnityObject(parentName);
 
 					//Rename unity object
-					go.name = name;
+					go.name = unityObjectName;
 
 					//Remove old dictionary entry
 					unityObjects.Remove(parentName);
 
 					//Add new dictionary entry
-					unityObjects.Add(name, vtkToUnity);
+					unityObjects.Add(unityObjectName, vtkToUnity);
 				}
 				else
 				{
-					Debug.Log("Reduce ??? to " + name);
+					Debug.Log("Reduce ??? to " + unityObjectName);
 
 					//Create new gameobject
-					GameObject go =  new GameObject(name);
+					GameObject go =  new GameObject(unityObjectName);
 
 					//Put new gameobject as child
 					go.transform.parent = gameObject.transform;
@@ -348,17 +333,18 @@ public class VTKRoot : MonoBehaviour
 
 	public void UpdateProperties(VTKNode node)
 	{
-		string name = GetUnityObjectName (node);
+		string unityObjectName = GetUnityObjectName (node);
 
-		Debug.Log ("Update properties: " + name);
+		Debug.Log ("Update properties: " + unityObjectName);
 
+		//Handle vtkToUnity
 		VtkToUnity vtkToUnity;
 
-		unityObjects.TryGetValue (name, out vtkToUnity);
+		unityObjects.TryGetValue (unityObjectName, out vtkToUnity);
 
 		vtkToUnity.triangleFilter.SetInputConnection(node.filter.vtkFilter.GetOutputPort());
 
-		//Set properties
+		//Handle properties
 		VTKProperties properties = node.properties;
 
 		if (properties.selectedColorType == 0) //solid color
@@ -387,7 +373,6 @@ public class VTKRoot : MonoBehaviour
 		}
 
 		vtkToUnity.Update ();
-
 		//TODO dont use a fixed position
 		vtkToUnity.go.transform.Translate(0f, 0f, 0f);
 	}
@@ -401,8 +386,7 @@ public class VTKRoot : MonoBehaviour
 						return;
 
 		Debug.Log ("Modifie: " + node.name);
-
-		//Calculate filter output based on parent filter
+		
 		node.filter.UpdateFilter (node.parent.filter.vtkFilter);
 
 		if(node.hasChildren)
@@ -420,23 +404,23 @@ public class VTKRoot : MonoBehaviour
 
 	/*
 	 * Compute all filters
-	 * Create vtkToUnity objects for every unity gameobject
+	 * Create vtkToUnity objects for every unity object
 	 * */
-	public void InitializeAll(VTKNode node)
+	public void PreloadData(VTKNode node)
 	{
-		string name = GetUnityObjectName(node);
+		Debug.Log ("Preload data for " + node.name);
 
-		//Calculate filter for the given node
+		string unityObjectName = GetUnityObjectName(node);
+
+		//Calculate filter
 		if (node.isRoot)
 		{
-			node.filter.OutputType = readerType;
-
-			if(readerType == VTK.FilterType.PolyData)
+			if(readerType == VTK.ReaderType.PolyData)
 			{
 				node.filter.vtkFilter = polyDataReader;
 			}
 
-			if(readerType == VTK.FilterType.UnstructuredGrid)
+			if(readerType == VTK.ReaderType.UnstructuredGrid)
 			{
 				node.filter.vtkFilter = unstructuredGridReader;
 			}
@@ -450,19 +434,19 @@ public class VTKRoot : MonoBehaviour
 		//Read properties
 		node.properties.Read ();
 
-		//Set vtkToUnity for the given node
+		//Set vtkToUnity
 		VtkToUnity vtkToUnity;
 
-		if(unityObjects.TryGetValue (name, out vtkToUnity))
+		if(unityObjects.TryGetValue (unityObjectName, out vtkToUnity))
 		{
-			unityObjects.Set(name, new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), FindUnityObject(name)));
+			unityObjects.Set(unityObjectName, new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), FindUnityObject(unityObjectName)));
 			UpdateProperties(node);
 		}
 
 		//Do it for the kids
 		foreach (VTKNode child in node.children)
 		{
-			InitializeAll(child);
+			PreloadData(child);
 		}
 	}
 
