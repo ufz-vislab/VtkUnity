@@ -32,6 +32,10 @@ public class VTKFilterTransform : VTKFilter
 	[HideInInspector]
 	public vtkTransform vtkTransform; 
 
+	public override void SetPlaymodeParameters(){}
+
+	public override void ValidateInput(){}
+
 	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
 		vtkFilter = Kitware.VTK.vtkTransformFilter.New ();

@@ -8,6 +8,10 @@ using Kitware.VTK;
 [ExecuteInEditMode]
 public class VTKFilterGeometry : VTKFilter 
 {
+	public override void SetPlaymodeParameters(){}
+
+	public override void ValidateInput(){}
+
 	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
 		vtkFilter = Kitware.VTK.vtkGeometryFilter.New();

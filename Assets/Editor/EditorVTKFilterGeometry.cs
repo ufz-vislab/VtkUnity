@@ -3,12 +3,7 @@ using System.Collections;
 using UnityEditor;
 
 [CustomEditor(typeof(VTKFilterGeometry))]
-public class EditorVTKFilterGeometry : Editor 
+public class EditorVTKFilterGeometry : EditorVTKFilter
 {
-	public override void OnInspectorGUI()
-	{
-		DrawDefaultInspector();
-		
-		EditorUtility.SetDirty (target);
-	}
+	public override void Content(){}
 }

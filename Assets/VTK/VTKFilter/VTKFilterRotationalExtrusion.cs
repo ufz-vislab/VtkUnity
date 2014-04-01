@@ -25,6 +25,10 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 		vtkFilter = vtkRotationalExtrusionFilter.New ();
 	}
 
+	public override void SetPlaymodeParameters(){}
+
+	public override void ValidateInput(){}
+
 	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
 	{
 		vtkFilter = vtkRotationalExtrusionFilter.New ();

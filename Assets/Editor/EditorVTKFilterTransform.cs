@@ -2,48 +2,34 @@ using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(VTKFilterTransform))]
-public class EditorVTKFilterTransform : Editor 
+public class EditorVTKFilterTransform : EditorVTKFilter
 {
-	public override void OnInspectorGUI()
+	public override void Content()
 	{
-		VTKFilterTransform script = (VTKFilterTransform)target;
-
-		DrawDefaultInspector ();
-
-		EditorGUI.BeginChangeCheck ();
+		script = (VTKFilterTransform)target;
 
 		//Translate
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Translate:");
-		script.translateX = EditorGUILayout.FloatField (script.translateX);
-		script.translateY = EditorGUILayout.FloatField (script.translateY);
-		script.translateZ = EditorGUILayout.FloatField (script.translateZ);
+		((VTKFilterTransform)script).translateX = EditorGUILayout.FloatField (((VTKFilterTransform)script).translateX);
+		((VTKFilterTransform)script).translateY = EditorGUILayout.FloatField (((VTKFilterTransform)script).translateY);
+		((VTKFilterTransform)script).translateZ = EditorGUILayout.FloatField (((VTKFilterTransform)script).translateZ);
 		EditorGUILayout.EndHorizontal ();
 
 		//Rotate
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Rotate:");
-		script.rotateX = EditorGUILayout.FloatField (script.rotateX);
-		script.rotateY = EditorGUILayout.FloatField (script.rotateY);
-		script.rotateZ = EditorGUILayout.FloatField (script.rotateZ);
+		((VTKFilterTransform)script).rotateX = EditorGUILayout.FloatField (((VTKFilterTransform)script).rotateX);
+		((VTKFilterTransform)script).rotateY = EditorGUILayout.FloatField (((VTKFilterTransform)script).rotateY);
+		((VTKFilterTransform)script).rotateZ = EditorGUILayout.FloatField (((VTKFilterTransform)script).rotateZ);
 
 		EditorGUILayout.EndHorizontal ();
 
 		//Scale
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Scale:");
-		script.scaleX = EditorGUILayout.FloatField (script.scaleX);
-		script.scaleY = EditorGUILayout.FloatField (script.scaleY);
-		script.scaleZ = EditorGUILayout.FloatField (script.scaleZ);
-
-		EditorGUILayout.EndHorizontal ();
-
-		if (EditorGUI.EndChangeCheck ()) 
-		{
-			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
-			root.Modifie(root.activeNode);
-		}
-
-		EditorUtility.SetDirty (target);
+		((VTKFilterTransform)script).scaleX = EditorGUILayout.FloatField (((VTKFilterTransform)script).scaleX);
+		((VTKFilterTransform)script).scaleY = EditorGUILayout.FloatField (((VTKFilterTransform)script).scaleY);
+		((VTKFilterTransform)script).scaleZ = EditorGUILayout.FloatField (((VTKFilterTransform)script).scaleZ);
 	}
 }

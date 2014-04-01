@@ -12,12 +12,12 @@ public class EditorVTKProperties : Editor
 
 		DrawDefaultInspector ();
 
-		PropertiesMenu ();
+		Content ();
 
 		EditorUtility.SetDirty (target);
 	}
 
-	public void PropertiesMenu()
+	public void Content()
 	{
 		EditorGUILayout.LabelField ("Properties:");
 		
@@ -27,12 +27,12 @@ public class EditorVTKProperties : Editor
 		
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField("Color Type:");
-		script.selectedColorType = EditorGUILayout.Popup(script.selectedColorType, script.typesOfColor);
+		script.selectedColorType = EditorGUILayout.Popup(script.selectedColorType, script.colorTypes);
 		EditorGUILayout.EndHorizontal ();
 		
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Data:");
-		script.selectedDataArray = EditorGUILayout.Popup(script.selectedDataArray, script.dataArray);
+		script.selectedDataArray = EditorGUILayout.Popup(script.selectedDataArray, script.dataArrays);
 		EditorGUILayout.EndHorizontal ();
 
 		EditorGUILayout.BeginHorizontal ();
@@ -42,8 +42,7 @@ public class EditorVTKProperties : Editor
 
 		if (EditorGUI.EndChangeCheck ()) 
 		{
-			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
-			root.UpdateProperties(root.activeNode);
+			script.UpdateInput();
 		}
 	}
 }

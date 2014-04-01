@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Reflection;
 using UnityEditor;
 
 public static class VTK 
@@ -15,10 +16,10 @@ public static class VTK
 		string[] filters = new string[]
 		{
 			"VTKFilterContour",
+			"VTKFilterDataSetSurface",
 			"VTKFilterGeometry",
 			"VTKFilterRotationalExtrusion",
-			"VTKFilterTransform",
-			"VTKFilterDataSetSurface"
+			"VTKFilterTransform"
 		};
 
 		return filters;

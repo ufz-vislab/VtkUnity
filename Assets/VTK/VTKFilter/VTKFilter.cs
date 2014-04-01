@@ -1,6 +1,7 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System.Collections;
 using Kitware.VTK;
+using System.Reflection;
 
 [System.Serializable]
 public abstract class VTKFilter : MonoBehaviour 
@@ -9,7 +10,20 @@ public abstract class VTKFilter : MonoBehaviour
 	public vtkAlgorithm vtkFilter;
 	[HideInInspector]
 	public VTKNode node;
+	[HideInInspector]
+	public ListOfPlaymodeParameter playmodeParameters = null;
 
 	//Here goes the filter stuff
 	public abstract void UpdateFilter(Kitware.VTK.vtkAlgorithm input);
+	
+	public abstract void SetPlaymodeParameters();
+
+	public virtual void UpdateInput()
+	{
+		ValidateInput ();
+		VTKRoot root = gameObject.GetComponent<VTKRoot> ();
+		root.Modifie(node);
+	}
+
+	public abstract void ValidateInput();
 }

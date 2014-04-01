@@ -6,7 +6,9 @@ using Kitware.VTK;
 public class VTKProperties : MonoBehaviour 
 {
 	[HideInInspector]
-	public string[] dataArray;
+	public VTKNode node;
+	[HideInInspector]
+	public string[] dataArrays;
 	[HideInInspector]
 	public int selectedDataArray;
 	[HideInInspector]
@@ -14,9 +16,20 @@ public class VTKProperties : MonoBehaviour
 	[HideInInspector]
 	public int selectedLut;
 	[HideInInspector]
-	public string[] typesOfColor = {"solid color", "data"};
+	public string[] colorTypes = {"solid color", "data"};
 	[HideInInspector]
 	public int selectedColorType;
+	[HideInInspector]
+	public ListOfPlaymodeParameter playmodeParameters;
+
+
+	public void SetPlaymodeParameters()
+	{
+		this.playmodeParameters = new ListOfPlaymodeParameter ();
+		this.playmodeParameters.Add (new PlaymodeParameter("selectedDataArray", "int", 1.0f));
+		this.playmodeParameters.Add (new PlaymodeParameter("selectedLut", "int", 1.0f));
+		this.playmodeParameters.Add (new PlaymodeParameter("selectedColorType", "int", 1.0f));
+	}
 
 	public void Read()
 	{
@@ -32,18 +45,18 @@ public class VTKProperties : MonoBehaviour
 		{
 			polyDataReader = root.polyDataReader;
 
-			dataArray = new string[polyDataReader.GetNumberOfPointArrays() + polyDataReader.GetNumberOfCellArrays()];
+			dataArrays = new string[polyDataReader.GetNumberOfPointArrays() + polyDataReader.GetNumberOfCellArrays()];
 
 			//Cell data
 			for (int i = 0; i < polyDataReader.GetNumberOfCellArrays(); i++) 
 			{
-				dataArray[i] = polyDataReader.GetCellArrayName(i) + " [C]";
+				dataArrays[i] = polyDataReader.GetCellArrayName(i) + " [C]";
 			}
 
 			//Point data
 			for (int i = 0; i < polyDataReader.GetNumberOfPointArrays(); i++) 
 			{
-				dataArray[polyDataReader.GetNumberOfCellArrays() + i] = polyDataReader.GetPointArrayName(i) + " [P]";
+				dataArrays[polyDataReader.GetNumberOfCellArrays() + i] = polyDataReader.GetPointArrayName(i) + " [P]";
 			}
 		}
 
@@ -51,19 +64,44 @@ public class VTKProperties : MonoBehaviour
 		{
 			unstructuredGridReader = root.unstructuredGridReader;
 
-			dataArray = new string[unstructuredGridReader.GetNumberOfPointArrays() + unstructuredGridReader.GetNumberOfCellArrays()];
+			dataArrays = new string[unstructuredGridReader.GetNumberOfPointArrays() + unstructuredGridReader.GetNumberOfCellArrays()];
 
 			//Cell data
 			for (int i = 0; i < unstructuredGridReader.GetNumberOfCellArrays(); i++) 
 			{
-				dataArray[i] = unstructuredGridReader.GetCellArrayName(i) + " [C]";
+				dataArrays[i] = unstructuredGridReader.GetCellArrayName(i) + " [C]";
 			}
 			
 			//Point data
 			for (int i = 0; i < unstructuredGridReader.GetNumberOfPointArrays(); i++) 
 			{
-				dataArray[unstructuredGridReader.GetNumberOfCellArrays() + i] = unstructuredGridReader.GetPointArrayName(i) + " [P]";
+				dataArrays[unstructuredGridReader.GetNumberOfCellArrays() + i] = unstructuredGridReader.GetPointArrayName(i) + " [P]";
 			}
 		}
+	}
+
+	public void ValidateInput()
+	{
+		if(selectedDataArray < 0)
+			selectedDataArray = 0;
+		if(selectedDataArray > dataArrays.Length - 1)
+			selectedDataArray = dataArrays.Length - 1;
+
+		if(selectedLut < 0)
+			selectedLut = 0;
+		if(selectedLut > Lut.Length - 1)
+			selectedLut = Lut.Length - 1;
+
+		if(selectedColorType < 0)
+			selectedColorType = 0;
+		if(selectedColorType > colorTypes.Length - 1)
+			selectedColorType = colorTypes.Length - 1;
+	}
+
+	public void UpdateInput()
+	{
+		ValidateInput ();
+		VTKRoot root = gameObject.GetComponent<VTKRoot>();
+		root.UpdateProperties(node);
 	}
 }

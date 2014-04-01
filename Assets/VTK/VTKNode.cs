@@ -61,7 +61,7 @@ public class VTKNode
 
 		Debug.LogWarning ("remove in node: " + node.name);
 		//Get node
-		VTKNode toRemove = GetChild (node);
+		VTKNode toRemove = GetNode (node);
 
 		//Get parent
 		VTKNode parent = toRemove.parent;
@@ -84,36 +84,51 @@ public class VTKNode
 		//Remove node
 		parent.children.Remove (toRemove);
 	}
-
-	/* 
-	 * Search the entire tree
-	 * */
-	public VTKNode GetChild(VTKNode toFind)
+	
+	public VTKNode GetNode(VTKNode toFind)
 	{
 		//If there are no children get out
-		if (!hasChildren)
+		if (!this.hasChildren)
 			return null;
 		
 		//If toFind is child of this object return it
 		if (this.children.Contains (toFind)) 
 		{
-			return children[children.IndexOf(toFind)];
+			return this.children[children.IndexOf(toFind)];
 		}
 		
 		//Recursivly search the children
 		VTKNode found = null;
 		
-		for (int i = 0; i < children.Count && found == null; i++) 
+		for (int i = 0; i < this.children.Count && found == null; i++) 
 		{
-			found = children[i].GetChild(toFind);
+			found = this.children[i].GetNode(toFind);
 		}
 		
 		return found;
 	}
+	
+	public VTKNode GetNode(string name)
+	{
+		if (this.name == name)
+						return this;
 
-	/*
-	 * Count amount of filters of the given type on gameobject + 1
-	 * */
+		if (!this.hasChildren)
+						return null;
+
+		VTKNode found = null;
+
+		if(this.hasChildren)
+		{
+			for(int i = 0; i < this.children.Count; i++)
+			{
+				found = children[i].GetNode(name);
+			}
+		}
+
+		return found;
+	}
+	
 	public int GetFilterNumber()
 	{
 		int number = filter.gameObject.GetComponents (filter.GetType ()).Length;

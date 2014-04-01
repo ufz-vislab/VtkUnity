@@ -97,6 +97,8 @@ public class VTKRoot : MonoBehaviour
 			}
 
 			root.properties = gameObject.AddComponent<VTKProperties> ();
+			root.properties.node = root;
+			root.properties.SetPlaymodeParameters();
 			root.properties.Read();
 
 			//Show root
@@ -150,9 +152,12 @@ public class VTKRoot : MonoBehaviour
 						return;
 		
 		newNode.filter.node = newNode;
+		newNode.filter.SetPlaymodeParameters ();
 
+		newNode.properties.node = newNode;
+		newNode.properties.SetPlaymodeParameters ();
 		newNode.properties.Read ();
-
+	
 		//Hide editor
 		newNode.filter.hideFlags = HideFlags.HideInInspector;
 		
@@ -355,7 +360,7 @@ public class VTKRoot : MonoBehaviour
 		{
 			if (properties.selectedColorType == 1) //data
 			{
-				string data = properties.dataArray[properties.selectedDataArray];
+				string data = properties.dataArrays[properties.selectedDataArray];
 				string dataName = data.Remove(data.IndexOf("[") - 1);
 
 				if(data.EndsWith("[C]"))
@@ -427,11 +432,14 @@ public class VTKRoot : MonoBehaviour
 		}
 		else
 		{
+			node.filter.SetPlaymodeParameters();
 			node.filter.node = node;
 			node.filter.UpdateFilter (node.parent.filter.vtkFilter);
 		}
 
 		//Read properties
+		node.properties.node = node;
+		node.properties.SetPlaymodeParameters();
 		node.properties.Read ();
 
 		//Set vtkToUnity

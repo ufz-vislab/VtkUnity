@@ -2,48 +2,35 @@ using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(VTKFilterRotationalExtrusion))]
-public class EditorVTKFilterRotationalExtrusion : Editor 
+public class EditorVTKFilterRotationalExtrusion : EditorVTKFilter 
 {
-	public override void OnInspectorGUI()
+	public override void Content()
 	{
-		VTKFilterRotationalExtrusion script = (VTKFilterRotationalExtrusion)target;
-
-		DrawDefaultInspector ();
-
-//		EditorGUI.BeginChangeCheck ();
-
+		script = (VTKFilterRotationalExtrusion)target;
+		
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Resolution:");
-		script.resolution = EditorGUILayout.IntField(script.resolution);
+		((VTKFilterRotationalExtrusion)script).resolution = EditorGUILayout.IntField(((VTKFilterRotationalExtrusion)script).resolution);
 		EditorGUILayout.EndHorizontal ();
 
 		EditorGUILayout.BeginHorizontal();
 		EditorGUILayout.LabelField("Capping:");
-		script.capping = EditorGUILayout.Toggle(script.capping);
+		((VTKFilterRotationalExtrusion)script).capping = EditorGUILayout.Toggle(((VTKFilterRotationalExtrusion)script).capping);
 		EditorGUILayout.EndHorizontal();
 
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Angle:");
-		script.angle = EditorGUILayout.FloatField(script.angle);
+		((VTKFilterRotationalExtrusion)script).angle = EditorGUILayout.FloatField(((VTKFilterRotationalExtrusion)script).angle);
 		EditorGUILayout.EndHorizontal ();
 
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Translation:");
-		script.translation = EditorGUILayout.FloatField(script.translation);
+		((VTKFilterRotationalExtrusion)script).translation = EditorGUILayout.FloatField(((VTKFilterRotationalExtrusion)script).translation);
 		EditorGUILayout.EndHorizontal ();
 
 		EditorGUILayout.BeginHorizontal ();
 		EditorGUILayout.LabelField ("Delta Radius:");
-		script.deltaRadius = EditorGUILayout.FloatField(script.deltaRadius);
-		EditorGUILayout.EndHorizontal ();
-
-		/*
-		if (EditorGUI.EndChangeCheck ()) 
-		{
-			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
-			root.Modifie(root.activeNode);
-		}
-*/
-		EditorUtility.SetDirty (target);
+		((VTKFilterRotationalExtrusion)script).deltaRadius = EditorGUILayout.FloatField(((VTKFilterRotationalExtrusion)script).deltaRadius);
+		EditorGUILayout.EndHorizontal ();		
 	}
 }

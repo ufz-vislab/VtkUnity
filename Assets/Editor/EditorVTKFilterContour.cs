@@ -3,40 +3,30 @@ using System.Collections;
 using UnityEditor;
 
 [CustomEditor(typeof(VTKFilterContour))]
-public class EditorVTKFilterContour : Editor 
+public class EditorVTKFilterContour : EditorVTKFilter 
 {
-	public bool toggle = false;
-
-	public override void OnInspectorGUI()
+	public override void Content()
 	{
-		VTKFilterContour script = (VTKFilterContour)target;
-
-		DrawDefaultInspector ();
-
-		EditorGUI.BeginChangeCheck ();
+		script = (VTKFilterContour)target;
 
 		EditorGUILayout.BeginHorizontal ();
-		script.numContours = EditorGUILayout.IntField (script.numContours);
-		toggle = EditorGUILayout.Toggle (toggle);
-			
-		if(toggle)
-		{
-			//script.useInPlaymode.Add(script.numContours);
-		}
-		else
-		{
-			//if(script.useInPlaymode.Contains(script.numContours))
-			//	script.useInPlaymode.Remove(script.numContours);
-		}
+		EditorGUILayout.LabelField ("Data array:");
+		((VTKFilterContour)script).selectedDataArray = EditorGUILayout.Popup (((VTKFilterContour)script).selectedDataArray, script.gameObject.GetComponent<VTKProperties>().dataArrays);
 		EditorGUILayout.EndHorizontal ();
-				
-		if (EditorGUI.EndChangeCheck ()) 
-		{
-			Debug.LogWarning("changed");
-			VTKRoot root = script.gameObject.GetComponent<VTKRoot>();
-			root.Modifie(root.activeNode);
-		}
-
-		EditorUtility.SetDirty (target);
+		
+		EditorGUILayout.BeginHorizontal ();
+		EditorGUILayout.LabelField ("Contours:");
+		((VTKFilterContour)script).numContours = EditorGUILayout.IntField (((VTKFilterContour)script).numContours);
+		EditorGUILayout.EndHorizontal ();
+		
+		EditorGUILayout.BeginHorizontal ();
+		EditorGUILayout.LabelField ("Range min:");
+		((VTKFilterContour)script).range[0] = EditorGUILayout.FloatField(((VTKFilterContour)script).range[0]);
+		EditorGUILayout.EndHorizontal ();
+		
+		EditorGUILayout.BeginHorizontal ();
+		EditorGUILayout.LabelField ("Range max:");
+		((VTKFilterContour)script).range[1] = EditorGUILayout.FloatField(((VTKFilterContour)script).range[1]);
+		EditorGUILayout.EndHorizontal ();
 	}
 }
