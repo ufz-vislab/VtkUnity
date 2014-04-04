@@ -19,6 +19,7 @@ public static class VTK
 			"VTKFilterDataSetSurface",
 			"VTKFilterGeometry",
 			"VTKFilterRotationalExtrusion",
+			"VTKFilterThreshold",
 			"VTKFilterTransform"
 		};
 

@@ -1,10 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/*
- * Node that contains a filter, a parent reference and a list of childfilters
- * */
-
 [System.Serializable]
 public class VTKNode 
 {

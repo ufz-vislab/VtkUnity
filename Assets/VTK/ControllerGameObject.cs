@@ -36,7 +36,7 @@ public class ControllerGameObject : MonoBehaviour
 	public VTKProperties properties;
 
 	public PlaymodeParameter playmodeParameter;
-
+	[HideInInspector]
 	public string pressedKey;
 
 	public mode activeMode = mode.None;
@@ -46,6 +46,11 @@ public class ControllerGameObject : MonoBehaviour
 
 	public void Start()
 	{
+		Initialize ();
+	}
+
+	public void Initialize ()
+	{
 		this.flyStick = GameObject.Find ("FlyStick");
 		this.root = gameObject.transform.parent.gameObject.GetComponent<VTKRoot> ();
 		
@@ -54,7 +59,7 @@ public class ControllerGameObject : MonoBehaviour
 		
 		this.filter = node.filter;
 		this.properties = node.properties;
-
+		
 		activeMode = mode.None;
 		activeMenu = menu.None;
 		activeParameter = 0;
@@ -231,9 +236,20 @@ public class ControllerGameObject : MonoBehaviour
 			}
 			break;
 		case "r":
-			if((activeIndex + 1) < 3)
+			if(playmodeParameter.type == "Vector2")
 			{
-				activeIndex += 1;
+				if((activeIndex + 1) < 2)
+				{
+					activeIndex += 1;
+				}
+			}
+
+			if(playmodeParameter.type == "Vector3")
+			{
+				if((activeIndex + 1) < 3)
+				{
+					activeIndex += 1;
+				}
 			}
 			break;
 		}
@@ -294,7 +310,6 @@ public class ControllerGameObject : MonoBehaviour
 
 	public void IncreaseVector2 ()
 	{
-		Debug.LogWarning ("inc vec 2");
 		pressedKey = "";
 		FieldInfo fi = GetFieldInfo ();
 
@@ -317,7 +332,6 @@ public class ControllerGameObject : MonoBehaviour
 
 	public void DecreaseVector2 ()
 	{
-		Debug.LogWarning ("dec vec 2");
 		pressedKey = "";
 		FieldInfo fi = GetFieldInfo ();
 		

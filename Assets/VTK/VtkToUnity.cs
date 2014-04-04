@@ -1,6 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
+/*
+ * "a": Select properties or filter
+ * "b": Select parameter
+ * "c": Select index (if parameter is a vector)
+ * "l" / "r": Select
+ * "u" / "d": increase / decrease selected parameter
+ * */
+
 [System.Serializable]
 public class VtkToUnity
 {
@@ -29,13 +37,15 @@ public class VtkToUnity
 		RAINBOW
 	}
 
-	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, GameObject go)
+	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, GameObject newGo)
 	{
-		this.name = go.name;
+
+		name = newGo.name;
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
 		triangleFilter.SetInputConnection(outputPort);
 
-		this.go = go;
+		go = newGo;
+
 
 		if (!go.GetComponent<MeshFilter> ()) 
 		{
@@ -52,6 +62,8 @@ public class VtkToUnity
 
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)
 	{
+		//TODO dont use GetComponent / AddComponentn inside a constructor call
+
 		this.name = name;
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
 		triangleFilter.SetInputConnection(outputPort);
@@ -61,12 +73,16 @@ public class VtkToUnity
 		MeshFilter meshFilter = go.AddComponent<MeshFilter> ();
 		meshFilter.sharedMesh = mesh;
 		go.AddComponent<MeshRenderer> ();
+
 	}
 
 	~VtkToUnity()
 	{
+		//TODO dont use GetComponent / AddComponentn inside a constructor call
+
 		foreach (Material mat in go.GetComponent<Renderer>().materials)
 			Object.DestroyImmediate(mat);
+			
 	}
 
 	public void Update()

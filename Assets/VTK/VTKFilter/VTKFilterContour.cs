@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using Kitware.VTK;
 using System.Collections;
@@ -20,6 +19,7 @@ public class VTKFilterContour : VTKFilter
 		numContours = 10;
 		range = Vector2.zero;
 		vtkFilter = vtkContourFilter.New();
+		selectedDataArray = 0;
 	}
 
 	public override void ValidateInput()
@@ -50,10 +50,10 @@ public class VTKFilterContour : VTKFilter
 	
 	public override void SetPlaymodeParameters()
 	{
-		this.playmodeParameters = new ListOfPlaymodeParameter ();
-		this.playmodeParameters.Add (new PlaymodeParameter("selectedDataArray", "int", 1.0f));
-		this.playmodeParameters.Add (new PlaymodeParameter("numContours", "int", 1.0f));
-		this.playmodeParameters.Add (new PlaymodeParameter("range", "Vector2", 1.0f));
+		playmodeParameters = new ListOfPlaymodeParameter ();
+		playmodeParameters.Add (new PlaymodeParameter("selectedDataArray", "int", 1.0f));
+		playmodeParameters.Add (new PlaymodeParameter("numContours", "int", 1.0f));
+		playmodeParameters.Add (new PlaymodeParameter("range", "Vector2", 1.0f));
 	}
 
 	public override void UpdateFilter(vtkAlgorithm input)

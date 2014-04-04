@@ -15,7 +15,9 @@ public abstract class VTKFilter : MonoBehaviour
 
 	//Here goes the filter stuff
 	public abstract void UpdateFilter(Kitware.VTK.vtkAlgorithm input);
-	
+
+	public abstract void ValidateInput();
+
 	public abstract void SetPlaymodeParameters();
 
 	public virtual void UpdateInput()
@@ -24,6 +26,4 @@ public abstract class VTKFilter : MonoBehaviour
 		VTKRoot root = gameObject.GetComponent<VTKRoot> ();
 		root.Modifie(node);
 	}
-
-	public abstract void ValidateInput();
 }

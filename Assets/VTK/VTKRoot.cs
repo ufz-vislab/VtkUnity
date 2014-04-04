@@ -119,14 +119,11 @@ public class VTKRoot : MonoBehaviour
 		//Preload everthing if the szene is restarted
 		if(!initialUse)
 		{
-			//TODO workaround, da parentreferenzen in den nodes verloren gehen, childreferenzen aber nicht oO?
 			Debug.Log ("Set parent references...");
 			SetParentReferences (root);
-			Debug.Log ("Done");
 
 			Debug.Log("Initialize all nodes, filters and objects...");
 			PreloadData (root);
-			Debug.Log ("Done");
 
 			//Hide root object
 			if(root.hasChildren)
@@ -142,7 +139,7 @@ public class VTKRoot : MonoBehaviour
 	/*
 	 * Create node for new filter
 	 * Compute new filter
-	 * Hide root unity object
+	 * Hide unity object for root
 	 * */
 	public void AddFilter(string filterName)
 	{
