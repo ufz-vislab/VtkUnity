@@ -35,17 +35,18 @@ public class VTKProperties : MonoBehaviour
 	{
 		VTKRoot root = gameObject.GetComponent<VTKRoot> ();
 
-		VTK.ReaderType readerType = root.readerType;
+		VTK.DataType dataType = root.dataType;
 
 		vtkXMLPolyDataReader polyDataReader;
 
 		vtkXMLUnstructuredGridReader unstructuredGridReader;
 
-		if( readerType == VTK.ReaderType.PolyData )
+		if( dataType == VTK.DataType.PolyData )
 		{
 			polyDataReader = root.polyDataReader;
 
-			dataArrays = new string[polyDataReader.GetNumberOfPointArrays() + polyDataReader.GetNumberOfCellArrays()];
+			dataArrays = new string[polyDataReader.GetNumberOfPointArrays() 
+			+ polyDataReader.GetNumberOfCellArrays()];
 
 			//Cell data
 			for (int i = 0; i < polyDataReader.GetNumberOfCellArrays(); i++) 
@@ -56,15 +57,17 @@ public class VTKProperties : MonoBehaviour
 			//Point data
 			for (int i = 0; i < polyDataReader.GetNumberOfPointArrays(); i++) 
 			{
-				dataArrays[polyDataReader.GetNumberOfCellArrays() + i] = polyDataReader.GetPointArrayName(i) + " [P]";
+				dataArrays[polyDataReader.GetNumberOfCellArrays() + i] = 
+				polyDataReader.GetPointArrayName(i) + " [P]";
 			}
 		}
 
-		if(readerType == VTK.ReaderType.UnstructuredGrid)
+		if(dataType == VTK.DataType.UnstructuredGrid)
 		{
 			unstructuredGridReader = root.unstructuredGridReader;
 
-			dataArrays = new string[unstructuredGridReader.GetNumberOfPointArrays() + unstructuredGridReader.GetNumberOfCellArrays()];
+			dataArrays = new string[unstructuredGridReader.GetNumberOfPointArrays() 
+			+ unstructuredGridReader.GetNumberOfCellArrays()];
 
 			//Cell data
 			for (int i = 0; i < unstructuredGridReader.GetNumberOfCellArrays(); i++) 
@@ -75,7 +78,8 @@ public class VTKProperties : MonoBehaviour
 			//Point data
 			for (int i = 0; i < unstructuredGridReader.GetNumberOfPointArrays(); i++) 
 			{
-				dataArrays[unstructuredGridReader.GetNumberOfCellArrays() + i] = unstructuredGridReader.GetPointArrayName(i) + " [P]";
+				dataArrays[unstructuredGridReader.GetNumberOfCellArrays() + i] = 
+				unstructuredGridReader.GetPointArrayName(i) + " [P]";
 			}
 		}
 	}
@@ -101,7 +105,6 @@ public class VTKProperties : MonoBehaviour
 	public void UpdateInput()
 	{
 		ValidateInput ();
-		VTKRoot root = gameObject.GetComponent<VTKRoot>();
-		root.UpdateProperties(node);
+		node.UpdateProperties ();
 	}
 }

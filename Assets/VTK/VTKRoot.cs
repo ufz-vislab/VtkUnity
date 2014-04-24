@@ -5,15 +5,16 @@ using Kitware.VTK;
 /*
  * Handle vtk-filters for a given vtk-file
  * */
-
 [ExecuteInEditMode]
 public class VTKRoot : MonoBehaviour
 {
+	//Editor stuff
+	[HideInInspector]
+	public bool selectedFileIsValid = false;
+
 	//File stuff
 	[HideInInspector]
 	public string filepath;
-	[HideInInspector]
-	public string filename;
 
 	//Reader stuff
 	[HideInInspector]
@@ -24,206 +25,230 @@ public class VTKRoot : MonoBehaviour
 	[HideInInspector]
 	public Vector3 startPosition;
 
-	//Filter stuff
+	//Node stuff
 	[HideInInspector]
 	public string[] supportedFilters;
 	[HideInInspector]
 	public int selectedFilter;
 	[HideInInspector]
-	public VTKNode root = new VTKNode(null, null, null);
+	public VTKNode rootNode = new VTKNode(null, null, null);
 	[HideInInspector]
-	public VTK.ReaderType readerType;
+	public VTK.DataType dataType;
 	[HideInInspector]
 	public VTKNode activeNode;
 	[HideInInspector]
-	public DictionaryVtkToUnity unityObjects = new DictionaryVtkToUnity ();
-
-	//Editor stuff
-	[HideInInspector]
-	public bool selectedFileIsValid = false;
+	public DictionaryVtkToUnity gameObjects = new DictionaryVtkToUnity ();
 
 	public void OnEnable()
 	{
 		if (selectedFileIsValid)
 		{
-			Initialize ();
+			Preload();
 		}
 	}
 
 	public void Initialize()
 	{
-		if(filename == null)
-			filename = GetFileName (filepath);
+		Debug.LogWarning("Initialize");
+		string rootName = VTK.GetFileName (filepath);
+		gameObject.name =  rootName;
 
-		if(gameObject.name != filename)
-			gameObject.name = filename;
+		supportedFilters = VTK.GetSupportedFiltersByName ();
 
 		//Initialize file reader
-		if(readerType == VTK.ReaderType.PolyData)
+		if(filepath.EndsWith(".vtp"))
 		{
+			dataType = VTK.DataType.PolyData;
+
 			polyDataReader = vtkXMLPolyDataReader.New ();
 			polyDataReader.SetFileName(filepath);
 			polyDataReader.Update();
 		}
 
-		if(readerType == VTK.ReaderType.UnstructuredGrid)
+		if(filepath.EndsWith(".vtu"))
 		{
+			dataType = VTK.DataType.UnstructuredGrid;
+
 			unstructuredGridReader = vtkXMLUnstructuredGridReader.New();
 			unstructuredGridReader.SetFileName(filepath);
 			unstructuredGridReader.Update();
 		}
 
-		supportedFilters = VTK.GetSupportedFiltersByName ();
-
-		bool initialUse = false;
-
-		//If it is a new object, create a vtkToUnity for root node
-		if (unityObjects.Count == 0)
-		{
-			Debug.Log("Create root node");
-
-			root.name = filename;
-
-			root.filter = gameObject.AddComponent<VTKFilterRootNode> ();
-
-			if(readerType == VTK.ReaderType.PolyData)
-			{
-				root.filter.vtkFilter = polyDataReader;
-			}
-
-			if(readerType == VTK.ReaderType.UnstructuredGrid)
-			{
-				root.filter.vtkFilter = unstructuredGridReader;
-			}
-
-			root.properties = gameObject.AddComponent<VTKProperties> ();
-			root.properties.node = root;
-			root.properties.SetPlaymodeParameters();
-			root.properties.Read();
-
-			//Show root
-			if(readerType == VTK.ReaderType.PolyData)
-			{
-				VtkToUnity vtkToUnity = new VtkToUnity(root.filter.vtkFilter.GetOutputPort(), gameObject);
-				vtkToUnity.ColorBy (Color.magenta);
-				vtkToUnity.Update ();
-
-				unityObjects.Add(root.name, vtkToUnity);
-			}
-
-			activeNode = root;
-
-			initialUse = true;
-		}
-
-		//Preload everthing if the szene is restarted
-		if(!initialUse)
-		{
-			Debug.Log ("Set parent references...");
-			SetParentReferences (root);
-
-			Debug.Log("Initialize all nodes, filters and objects...");
-			PreloadData (root);
-
-			//Hide root object
-			if(root.hasChildren)
-			{
-				if (gameObject.GetComponent<MeshFilter>())
-					gameObject.GetComponent<MeshFilter>().mesh = null;
-			}
-		}
-
-		SetActiveNode (root);
-	}
-
-	/*
-	 * Create node for new filter
-	 * Compute new filter
-	 * Hide unity object for root
-	 * */
-	public void AddFilter(string filterName)
-	{
-		VTKNode newNode = activeNode.AddChild (new VTKNode ((VTKFilter)gameObject.AddComponent (filterName), activeNode, gameObject.AddComponent<VTKProperties>()));
-
-		if (newNode == null)
-						return;
-		
-		newNode.filter.node = newNode;
-		newNode.filter.SetPlaymodeParameters ();
-
-		newNode.properties.node = newNode;
-		newNode.properties.SetPlaymodeParameters ();
-		newNode.properties.Read ();
+		//Initialize root node
+		Debug.Log("Initialize root node");
+		rootNode.name = rootName;
+		rootNode.filter = gameObject.AddComponent<VTKFilterRootNode> ();
+		rootNode.properties = gameObject.AddComponent<VTKProperties> ();
 	
-		//Hide editor
-		newNode.filter.hideFlags = HideFlags.HideInInspector;
-		
-		SetActiveNode (newNode);
-		
-		Modifie (activeNode);
+		PreloadNode(rootNode);
 
-		//Clear root object
-		if(root.hasChildren)
+		activeNode = rootNode;
+	}
+
+	public void Preload()
+	{
+		//Preload all other nodes
+		PreloadNode (rootNode);
+	}
+
+	public void PreloadNode(VTKNode node)
+	{
+		Debug.Log ("Preload data for " + node.name);
+
+		string objectName = VTK.GetGameObjectName(node);
+
+		//Set filter
+		if(node.isRoot)
 		{
-			if(gameObject.renderer)
-				gameObject.renderer.enabled = false;
+			if(dataType == VTK.DataType.PolyData)
+			{
+				polyDataReader = vtkXMLPolyDataReader.New ();
+				polyDataReader.SetFileName(filepath);
+				polyDataReader.Update();
+
+				node.filter.vtkFilter = polyDataReader;
+				node.filter.outputType = VTK.DataType.PolyData;
+			}
+
+			if(dataType == VTK.DataType.UnstructuredGrid)
+			{
+				unstructuredGridReader = vtkXMLUnstructuredGridReader.New();
+				unstructuredGridReader.SetFileName(filepath);
+				unstructuredGridReader.Update();
+
+				node.filter.vtkFilter = unstructuredGridReader;
+				node.filter.outputType = VTK.DataType.UnstructuredGrid;
+			}
+		}
+		else
+		{
+			node.filter.node = node;
+			node.filter.UpdateInput();
+			node.filter.SetPlaymodeParameters();
+		}
+
+		//Set properties
+		node.properties.node = node;
+		node.properties.SetPlaymodeParameters();
+		node.properties.Read ();
+
+		//Set vtkToUnity
+		VtkToUnity vtu;
+
+		if(gameObjects.TryGetValue (objectName, out vtu))
+		{
+			gameObjects.Set(objectName, new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), 
+				FindGameObject(objectName)));
+
+			node.UpdateProperties(); //Some filters need stuff from properties
+		}
+
+		//Set controller script
+		ControllerGameObject cg = node.filter.gameObject.GetComponent<ControllerGameObject>();
+		if(cg != null)
+		{
+			cg.node = node;
+			cg.Initialize();
+		}
+
+		//Do it for the kids
+		foreach (VTKNode child in node.children)
+		{
+			//Set parent reference
+			child.parent = node;
+
+			PreloadNode(child);
 		}
 	}
 
 	/*
-	 * Remove node
-	 * Remove drop-down nodes
+	 * Creates node new node
+	 * Creates or update gameobject
+	 * */
+	public void AddNode(string filterName)
+	{
+		VTKNode node = activeNode.AddChild (new VTKNode ((VTKFilter)gameObject.AddComponent (filterName), 
+			activeNode, gameObject.AddComponent<VTKProperties>()));
+
+		if (node == null)
+			return;
+
+		Debug.Log ("Add node " + node.name);
+
+		node.filter.node = node;
+		node.filter.SetPlaymodeParameters ();
+		node.properties.node = node;
+		node.properties.SetPlaymodeParameters ();
+		node.properties.Read ();
+		node.UpdateFilter();
+		
+		SetActiveNode (node);
+		
+		//Create or update gameobject for new node
+		if(!node.parent.isRoot)
+		{
+			//If parent has no children, update parent
+			if(node.parent.children.Count == 1)
+			{
+				//Destroy old gameobject
+				gameObjects.Remove(VTK.GetGameObjectName(node.parent));
+				GameObject.DestroyImmediate(GameObject.Find(VTK.GetGameObjectName(node.parent)));
+			}
+		}
+		
+		CreateGameObject (node);
+	}
+
+	/*
+	 * Removes node (drop-down)
 	 * */
 	public void RemoveNode(VTKNode node)
 	{
 		if (node.isRoot)
-						return;
+			return;
 
-		Debug.LogWarning("Remove: " + node.name);
 		VTKNode parent = node.parent;
 
-		//Delete all unity objects node is part of
+		SetActiveNode (parent);
+
+		//Delete all gameobjects node is part of
 		for(int i = gameObject.transform.childCount - 1; i > -1; i--)
 		{
 			GameObject go = gameObject.transform.GetChild(i).gameObject;
 
 			if(go.name.Contains(node.name))
 			{
-				unityObjects.Remove(go.name);
+				gameObjects.Remove(go.name);
 				DestroyImmediate(go);
 			}
 		}
 
 		//Delete node
-		root.RemoveChild (node);
+		parent.RemoveChild (node);
 
 		//Update parent node
-		if (parent.isRoot)
+		
+		//If no children left, show parent
+		if(!parent.hasChildren && !parent.isRoot)
 		{
-			if(!parent.hasChildren)
+			if(parent.filter.outputType == VTK.DataType.PolyData)
 			{
-				gameObject.renderer.enabled = true;
-				unityObjects.Set(GetUnityObjectName(root), new VtkToUnity(root.filter.vtkFilter.GetOutputPort(), gameObject));
-				UpdateProperties(root);
+				CreateGameObject(parent);
 			}
 		}
-		else
-		{
-			if(!parent.hasChildren) //Update filter and vtkToUnity
-			{
-				Modifie(parent);
-			}
-		}
-
-		activeNode = parent;
 	}
 
+	/*
+	 * Sets the given node active
+	 * Hides scripts from the current node
+	 * Shows scripts for the new node
+	 * */
 	public void SetActiveNode(VTKNode node)
 	{
 		if(activeNode == null)
-			activeNode = root;
+			activeNode = rootNode;
 
-		//Hide stuff from old node
+		//Hide scripts old node
 		if (!activeNode.isRoot)
 		{
 			activeNode.filter.hideFlags = HideFlags.HideInInspector;
@@ -234,8 +259,8 @@ public class VTKRoot : MonoBehaviour
 		//Set active node
 		activeNode = node;
 
-		//Show stuff for active node
-		if (!activeNode.isRoot) //Show filter
+		//Show scripts new node
+		if (!activeNode.isRoot)
 		{
 			activeNode.filter.hideFlags = HideFlags.None;
 		}
@@ -246,256 +271,35 @@ public class VTKRoot : MonoBehaviour
 		}
 	}
 
-	//TODO refactoring!!!
-	/*
-	 * Update or extend existing unity object or create new one
-	 * */
-	public void UpdateUnityObject(VTKNode node)
+	public void CreateGameObject(VTKNode node)
 	{
-		string unityObjectName = GetUnityObjectName (node);
-
-		Debug.Log ("UpdateUnityObject: " + unityObjectName);
-
-		VtkToUnity vtkToUnity;
-
-		if (unityObjects.TryGetValue(unityObjectName, out vtkToUnity)) //Update existing unity object
-		{
-			vtkToUnity.triangleFilter.SetInputConnection(node.filter.vtkFilter.GetOutputPort());
-		}
-		else //New filter
-		{
-			/*
-			 * New vtkToUnity and new unity gameobject if:
-			 * 1: Parent node already has children
-			 * 2: Parent node is root
-			 *
-			 * Extend exsisting vtkToUnity and unity gameobject if:
-			 * neighter 1 nor 2
-			 * */
-
-			VTKNode parent = node.parent;
-			string parentName = GetUnityObjectName(parent);
-
-			if(parent.isRoot || parent.children.Count > 1) //New
-			{
-				Debug.Log("Create new outputobject " + unityObjectName);
-
-				//Create new gameobject
-				GameObject go =  new GameObject(unityObjectName);
-
-				go.transform.parent = gameObject.transform;
-
-				//Create new vtkToUnity and apply filter
-				vtkToUnity = new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), go);
-
-				//Add it to the list
-				unityObjects.Add(go.name, vtkToUnity);
-			}
-			else //Extend / reduce
-			{
-				//Get vtkToUnity
-				if(unityObjects.TryGetValue(parentName, out vtkToUnity))
-				{
-					Debug.Log("Extend " + parentName + " to " + unityObjectName);
-
-					//Get unity object to extend
-					GameObject go = FindUnityObject(parentName);
-
-					//Rename unity object
-					go.name = unityObjectName;
-
-					//Remove old dictionary entry
-					unityObjects.Remove(parentName);
-
-					//Add new dictionary entry
-					unityObjects.Add(unityObjectName, vtkToUnity);
-				}
-				else
-				{
-					Debug.Log("Reduce ??? to " + unityObjectName);
-
-					//Create new gameobject
-					GameObject go =  new GameObject(unityObjectName);
-
-					//Put new gameobject as child
-					go.transform.parent = gameObject.transform;
-
-					//Create new vtkToUnity and apply filter
-					vtkToUnity = new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), go);
-
-					//Add it to the list
-					unityObjects.Add(go.name, vtkToUnity);
-				}
-
-			}
-		}
-
-		UpdateProperties (node);
-	}
-
-	public void UpdateProperties(VTKNode node)
-	{
-		string unityObjectName = GetUnityObjectName (node);
-
-		Debug.Log ("Update properties: " + unityObjectName);
-
-		//Handle vtkToUnity
-		VtkToUnity vtkToUnity;
-
-		unityObjects.TryGetValue (unityObjectName, out vtkToUnity);
-
-		vtkToUnity.triangleFilter.SetInputConnection(node.filter.vtkFilter.GetOutputPort());
-
-		//Handle properties
-		VTKProperties properties = node.properties;
-
-		if (properties.selectedColorType == 0) //solid color
-		{
-			vtkToUnity.ColorBy (Color.magenta);
-		}
-		else
-		{
-			if (properties.selectedColorType == 1) //data
-			{
-				string data = properties.dataArrays[properties.selectedDataArray];
-				string dataName = data.Remove(data.IndexOf("[") - 1);
-
-				if(data.EndsWith("[C]"))
-				{
-					vtkToUnity.ColorBy (dataName, VtkToUnity.VtkColorType.CELL_DATA);
-				}
-
-				if(data.EndsWith("[P]"))
-				{
-					vtkToUnity.ColorBy (dataName, VtkToUnity.VtkColorType.POINT_DATA);
-				}
-			}
-
-			vtkToUnity.SetLut ((VtkToUnity.LutPreset) properties.selectedLut);
-		}
-
-		vtkToUnity.Update ();
-		//TODO dont use a fixed position
-		vtkToUnity.go.transform.Translate(0f, 0f, 0f);
-	}
-
-	/*
-	 * Propagate changes from the given node drop-down its children
-	 * */
-	public void Modifie(VTKNode node)
-	{
-		if (node.isRoot)
-						return;
-
-		Debug.Log ("Modifie: " + node.name);
+		Debug.Log ("Create gameobject " + VTK.GetGameObjectName(node));
 		
-		node.filter.UpdateFilter (node.parent.filter.vtkFilter);
-
-		if(node.hasChildren)
+		if(node.filter.outputType == VTK.DataType.PolyData)
 		{
-			foreach (VTKNode child in node.children)
-			{
-				Modifie(child);
-			}
-		}
-		else
-		{
-			UpdateUnityObject(node);
-		}
-	}
+			//Create gameobject
+			VtkToUnity vtu = new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), 
+				VTK.GetGameObjectName (node));
+			vtu.go.transform.parent = gameObject.transform;
+			vtu.ColorBy (Color.magenta);
+			vtu.Update ();
 
-	/*
-	 * Compute all filters
-	 * Create vtkToUnity objects for every unity object
-	 * */
-	public void PreloadData(VTKNode node)
-	{
-		Debug.Log ("Preload data for " + node.name);
-
-		string unityObjectName = GetUnityObjectName(node);
-
-		//Calculate filter
-		if (node.isRoot)
-		{
-			if(readerType == VTK.ReaderType.PolyData)
-			{
-				node.filter.vtkFilter = polyDataReader;
-			}
-
-			if(readerType == VTK.ReaderType.UnstructuredGrid)
-			{
-				node.filter.vtkFilter = unstructuredGridReader;
-			}
-		}
-		else
-		{
-			node.filter.SetPlaymodeParameters();
-			node.filter.node = node;
-			node.filter.UpdateFilter (node.parent.filter.vtkFilter);
-		}
-
-		//Read properties
-		node.properties.node = node;
-		node.properties.SetPlaymodeParameters();
-		node.properties.Read ();
-
-		//Set vtkToUnity
-		VtkToUnity vtkToUnity;
-
-		if(unityObjects.TryGetValue (unityObjectName, out vtkToUnity))
-		{
-			unityObjects.Set(unityObjectName, new VtkToUnity(node.filter.vtkFilter.GetOutputPort(), FindUnityObject(unityObjectName)));
-			UpdateProperties(node);
-		}
-
-		//Do it for the kids
-		foreach (VTKNode child in node.children)
-		{
-			PreloadData(child);
+			gameObjects.Add(vtu.go.name, vtu);
+			
+			//Add mesh for controller support
+			/*
+			MeshCollider mc = go.AddComponent<MeshCollider>();
+			mc.isTrigger = true;
+			ControllerGameObject cg = go.AddComponent<ControllerGameObject>();
+			cg.node = node;
+			cg.Initialize();
+			*/
 		}
 	}
 
-	/*
-	 * Get VTK-file name
-	 * */
-	public string GetFileName(string filepath)
+	public GameObject FindGameObject(string name)
 	{
-		return filepath.Remove(0, filepath.LastIndexOf("/")+1);
-	}
-
-	public void SetParentReferences(VTKNode n)
-	{
-		if (n.hasChildren)
-		{
-			foreach(VTKNode child in n.children)
-			{
-				child.parent = n;
-
-				SetParentReferences(child);
-			}
-		}
-	}
-
-	public string GetUnityObjectName(VTKNode node)
-	{
-		string name = "";
-
-		VTKNode current = node;
-
-		while (current.parent != null)
-		{
-			name = "," + current.name + name;
-			current = current.parent;
-		}
-
-		name = current.name + name;
-
-		return name;
-	}
-
-	public GameObject FindUnityObject(string name)
-	{
-		if (name == GetUnityObjectName (root))
+		if (name == VTK.GetGameObjectName (rootNode))
 						return gameObject;
 
 		return gameObject.transform.Find (name).gameObject;

@@ -16,7 +16,7 @@ public abstract class EditorVTKFilter : Editor
 
 		if(EditorGUI.EndChangeCheck())
 		{
-			script.UpdateInput();
+			script.node.UpdateFilter();
 		}
 
 		EditorUtility.SetDirty (target);

@@ -9,21 +9,22 @@ public abstract class VTKFilter : MonoBehaviour
 	[HideInInspector]
 	public vtkAlgorithm vtkFilter;
 	[HideInInspector]
+	public VTK.DataType outputType;
+	[HideInInspector]
 	public VTKNode node;
 	[HideInInspector]
 	public ListOfPlaymodeParameter playmodeParameters = null;
 
 	//Here goes the filter stuff
-	public abstract void UpdateFilter(Kitware.VTK.vtkAlgorithm input);
+	protected abstract void CalculateFilter();
 
-	public abstract void ValidateInput();
+	protected abstract void ValidateInput();
 
 	public abstract void SetPlaymodeParameters();
 
 	public virtual void UpdateInput()
 	{
 		ValidateInput ();
-		VTKRoot root = gameObject.GetComponent<VTKRoot> ();
-		root.Modifie(node);
+		CalculateFilter();
 	}
 }

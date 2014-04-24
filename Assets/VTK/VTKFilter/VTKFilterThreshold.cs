@@ -17,7 +17,7 @@ public class VTKFilterThreshold : VTKFilter
 		selectedDataArray = 0;
 	}
 
-	public override void ValidateInput ()
+	protected override void ValidateInput ()
 	{
 		//TODO
 	}
@@ -29,15 +29,17 @@ public class VTKFilterThreshold : VTKFilter
 		playmodeParameters.Add (new PlaymodeParameter ("selectedDataArray", "int", 1.0f));
 	}
 
-	public override void UpdateFilter (Kitware.VTK.vtkAlgorithm input)
+	protected override void CalculateFilter ()
 	{
 		vtkFilter = vtkThreshold.New ();
 
 		string dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
 		dataArray = dataArray.Remove(dataArray.IndexOf("[") - 1);
 
-		vtkFilter.SetInputConnection (input.GetOutputPort());
-		vtkFilter.SetInputArrayToProcess(0, 0, 0, (int)vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, dataArray);
+		vtkFilter.SetInputConnection (node.parent.filter.vtkFilter.GetOutputPort());
+		vtkFilter.SetInputArrayToProcess(0, 0, 0, 
+			(int)vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, 
+			dataArray);
 		((vtkThreshold)vtkFilter).SetSelectedComponent (0);
 		((vtkThreshold)vtkFilter).ThresholdBetween (range [0], range [1]);
 		vtkFilter.Update ();

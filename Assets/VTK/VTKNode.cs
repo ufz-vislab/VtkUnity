@@ -8,12 +8,28 @@ public class VTKNode
 	public VTKFilter filter;
 	public VTKNode parent;
 	public List<VTKNode> children;
-	public bool hasChildren
-	{
-		get{return (children == null || children.Count == 0) ? false : true;}
-	}
 	public bool isRoot;
 	public VTKProperties properties;
+	public bool hasChildren
+	{
+		get{
+				if(children != null)
+				{
+					if(children.Count > 0)
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
+	}
 
 	public VTKNode(VTKFilter filter, VTKNode parent, VTKProperties properties)
 	{
@@ -48,39 +64,111 @@ public class VTKNode
 
 	/*
 	 * Also removes drop-down filters
-	 * Only call on root
 	 * */
 	public void RemoveChild(VTKNode node)
 	{
 		if (node.isRoot)
 			return;
 
-		Debug.LogWarning ("remove in node: " + node.name);
-		//Get node
-		VTKNode toRemove = GetNode (node);
-
-		//Get parent
-		VTKNode parent = toRemove.parent;
+		VTKNode parent = node.parent;
 
 		//Drop-down filters
-		if(toRemove.hasChildren)
+		if(node.hasChildren)
 		{
-			for(int i = 0; i < toRemove.children.Count; i++)
+			for(int i = 0; i < node.children.Count; i++)
 			{
-				RemoveChild(toRemove.children[i]);
+				RemoveChild(node.children[i]);
 			}
 		}
 
 		//Remove filter script from editor
-		Object.DestroyImmediate(toRemove.filter);
+		Object.DestroyImmediate(node.filter);
 
 		//Remove properties script from editor
-		Object.DestroyImmediate(toRemove.properties);
+		Object.DestroyImmediate(node.properties);
 
 		//Remove node
-		parent.children.Remove (toRemove);
+		parent.children.Remove (node);
 	}
-	
+
+	public void UpdateFilter()
+	{
+		if(isRoot)
+			return;
+
+		Debug.LogWarning("UpdateFilter: " + filter.name);
+
+		//Update this filter
+		filter.UpdateInput();
+
+		//UpdateChildren
+		if(hasChildren)
+		{
+			foreach (VTKNode child in children)
+			{
+				child.UpdateFilter();
+			}
+		}
+		
+		//Update gameobject
+		VtkToUnity vtu;
+		VTKRoot root = filter.gameObject.GetComponent<VTKRoot>();
+		string gameObjectName = VTK.GetGameObjectName (this);
+
+		if(root.gameObjects.TryGetValue (gameObjectName, out vtu))
+		{
+			/*
+			vtu.triangleFilter.SetInputConnection(filter.vtkFilter.GetOutputPort());
+			vtu.Update();
+			*/
+			UpdateProperties();
+		}
+	}
+
+	public void UpdateProperties()
+	{
+		Debug.Log ("Update properties: " + VTK.GetGameObjectName (this));
+		
+		VtkToUnity vtkToUnity;
+		VTKRoot root = filter.gameObject.GetComponent<VTKRoot>();
+
+		root.gameObjects.TryGetValue (VTK.GetGameObjectName (this), out vtkToUnity);
+		
+		vtkToUnity.triangleFilter.SetInputConnection(filter.vtkFilter.GetOutputPort());
+
+		//Properties
+		if (properties.selectedColorType == 0) //solid color
+		{
+			vtkToUnity.ColorBy (Color.magenta);
+		}
+		else
+		{
+			if (properties.selectedColorType == 1) //data
+			{
+				string data = properties.dataArrays[properties.selectedDataArray];
+				string dataName = data.Remove(data.IndexOf("[") - 1);
+				
+				if(data.EndsWith("[C]"))
+				{
+					vtkToUnity.ColorBy (dataName, VtkToUnity.VtkColorType.CELL_DATA);
+				}
+				
+				if(data.EndsWith("[P]"))
+				{
+					vtkToUnity.ColorBy (dataName, VtkToUnity.VtkColorType.POINT_DATA);
+				}
+			}
+			
+			vtkToUnity.SetLut ((VtkToUnity.LutPreset) properties.selectedLut);
+		}
+		
+		vtkToUnity.Update ();
+		
+		//TODO dont use a fixed position
+		vtkToUnity.go.transform.Translate(0f, 0f, 0f);
+	}
+
+	//TODO brauch ich das überhaupt noch?
 	public VTKNode GetNode(VTKNode toFind)
 	{
 		//If there are no children get out
@@ -103,7 +191,8 @@ public class VTKNode
 		
 		return found;
 	}
-	
+
+	//TODO brauch ich das noch?
 	public VTKNode GetNode(string name)
 	{
 		if (this.name == name)
@@ -124,7 +213,8 @@ public class VTKNode
 
 		return found;
 	}
-	
+
+	//TODO beim löschen von kindern wird die nummer in bestimmten fällen nicht richtig gesetzt
 	public int GetFilterNumber()
 	{
 		int number = filter.gameObject.GetComponents (filter.GetType ()).Length;

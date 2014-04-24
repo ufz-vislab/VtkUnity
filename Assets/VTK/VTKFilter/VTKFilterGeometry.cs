@@ -10,13 +10,15 @@ public class VTKFilterGeometry : VTKFilter
 {
 	public override void SetPlaymodeParameters(){}
 
-	public override void ValidateInput(){}
+	protected override void ValidateInput(){}
 
-	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
+	protected override void CalculateFilter()
 	{
+		outputType = VTK.DataType.PolyData;
+		
 		vtkFilter = Kitware.VTK.vtkGeometryFilter.New();
 		
-		vtkFilter.SetInputConnection(input.GetOutputPort());
+		vtkFilter.SetInputConnection(node.parent.filter.vtkFilter.GetOutputPort());
 
 		vtkFilter.Update ();
 	}

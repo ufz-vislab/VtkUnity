@@ -36,34 +36,24 @@ public class VtkToUnity
 		RED_BLUE,
 		RAINBOW
 	}
-
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, GameObject newGo)
 	{
-
 		name = newGo.name;
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
 		triangleFilter.SetInputConnection(outputPort);
 
+		GameObject.DestroyImmediate(newGo.GetComponent<MeshFilter>());
+		GameObject.DestroyImmediate(newGo.GetComponent<MeshRenderer>());
+
 		go = newGo;
 
-
-		if (!go.GetComponent<MeshFilter> ()) 
-		{
-			go.AddComponent<MeshFilter> ();
-		}
-		go.GetComponent<MeshFilter> ().sharedMesh = mesh;
-
-		if (!go.GetComponent<MeshRenderer> ()) 
-		{
-			go.AddComponent<MeshRenderer> ();
-		}
+		MeshFilter meshFilter = go.AddComponent<MeshFilter> ();
+		meshFilter.sharedMesh = mesh;
+		go.AddComponent<MeshRenderer> ();
 
 	}
-
 	public VtkToUnity(Kitware.VTK.vtkAlgorithmOutput outputPort, string name)
 	{
-		//TODO dont use GetComponent / AddComponentn inside a constructor call
-
 		this.name = name;
 		triangleFilter = Kitware.VTK.vtkTriangleFilter.New();
 		triangleFilter.SetInputConnection(outputPort);
@@ -73,16 +63,12 @@ public class VtkToUnity
 		MeshFilter meshFilter = go.AddComponent<MeshFilter> ();
 		meshFilter.sharedMesh = mesh;
 		go.AddComponent<MeshRenderer> ();
-
 	}
 
 	~VtkToUnity()
 	{
-		//TODO dont use GetComponent / AddComponentn inside a constructor call
-
 		foreach (Material mat in go.GetComponent<Renderer>().materials)
-			Object.DestroyImmediate(mat);
-			
+			Object.DestroyImmediate(mat);			
 	}
 
 	public void Update()
@@ -132,6 +118,7 @@ public class VtkToUnity
 		Kitware.VTK.vtkCellArray lines = pd.GetLines();
 		if (lines.GetNumberOfCells() > 0)
 		{
+			Debug.LogWarning("lines");
 			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 			lines.InitTraversal();
 			int prim = 0;
@@ -149,7 +136,8 @@ public class VtkToUnity
 				Vector3[] linePoints = new Vector3[2];
 				linePoints[0] = vertices[pts.GetId(0)];
 				linePoints[1] = vertices[pts.GetId(1)];
-				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", linePoints, lineColor, null, 1.0f);
+				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", 
+					linePoints, lineColor, null, 50.0f);
 				//line.Draw3DAuto(go.transform);
 				line.Draw3D(go.transform);
 				++prim;
@@ -194,6 +182,7 @@ public class VtkToUnity
 		Kitware.VTK.vtkDataArray vtkTexCoords = pd.GetPointData().GetTCoords();
 		if (vtkTexCoords != null)
 		{
+			Debug.LogWarning("B");
 			numCoords = vtkTexCoords.GetNumberOfTuples();
 			uvs = new Vector2[numCoords];
 			for (int i = 0; i < numCoords; ++i)
@@ -203,6 +192,8 @@ public class VtkToUnity
 			}
 			mesh.uv = uvs;
 		}
+		else
+			Debug.LogWarning("Texturekoordinaten null"); 
 
 		// Vertex colors
 		if (numTriangles > 0 && colorArray != null)

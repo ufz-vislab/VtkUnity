@@ -34,15 +34,17 @@ public class VTKFilterTransform : VTKFilter
 
 	public override void SetPlaymodeParameters(){}
 
-	public override void ValidateInput(){}
+	protected override void ValidateInput(){}
 
-	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
+	protected override void CalculateFilter()
 	{
+		outputType = VTK.DataType.PolyData;
+		
 		vtkFilter = Kitware.VTK.vtkTransformFilter.New ();
 
 		vtkTransform = Kitware.VTK.vtkTransform.New ();
 
-		vtkFilter.SetInputConnection (input.GetOutputPort());
+		vtkFilter.SetInputConnection (node.parent.filter.vtkFilter.GetOutputPort());
 
 		SetTranslation ();
 		SetRotation ();
@@ -51,6 +53,8 @@ public class VTKFilterTransform : VTKFilter
 		((vtkTransformFilter)vtkFilter).SetTransform (vtkTransform);
 
 		vtkFilter.Update ();
+
+		outputType = VTK.DataType.PolyData;
 	}
 
 	public void SetTranslation ()

@@ -40,27 +40,19 @@ public class EditorVTKRoot : Editor
 		if(GUILayout.Button("Select File"))
 		{
 			script.filepath = EditorUtility.OpenFilePanel("Select File:", 
-			                                              System.IO.Path.Combine(Application.streamingAssetsPath, "Vtk-Data/"), "*");
+			                  System.IO.Path.Combine(Application.streamingAssetsPath,
+			                  "Vtk-Data/"), "*");
 			
 			if(script.filepath.EndsWith(".vtp") || script.filepath.EndsWith(".vtu")) 
 			{
-				//Set data type
-				if(script.filepath.EndsWith(".vtp"))
-					script.readerType = VTK.ReaderType.PolyData;
-
-				if(script.filepath.EndsWith(".vtu"))
-					script.readerType = VTK.ReaderType.UnstructuredGrid;
-
 				script.selectedFileIsValid = true;
 				script.Initialize();
-				script.startPosition = script.gameObject.transform.position;
 			}
 			else
 			{
 				script.selectedFileIsValid = false;
 				Debug.LogWarning("Select .vtp or .vtu file");
 			}
-			
 		}
 		EditorGUILayout.EndHorizontal ();
 	}
@@ -86,26 +78,24 @@ public class EditorVTKRoot : Editor
 		
 		EditorGUILayout.BeginHorizontal ();
 		script.selectedFilter = EditorGUILayout.Popup (script.selectedFilter, script.supportedFilters);
-		
+
 		if (GUILayout.Button ("Add")) 
 		{
-			script.AddFilter (script.supportedFilters[script.selectedFilter]);
+			script.AddNode (script.supportedFilters[script.selectedFilter]);
 		}
 		EditorGUILayout.EndHorizontal ();
 
 		EditorGUILayout.Separator();
 
 		//Tree
-		CreateSubTree(script.root, 0);
+		CreateSubTree(script.rootNode, 0);
 	}
 
 	/*
 	 * Creates tree entries for a given node and its children
 	 * */
 	private void CreateSubTree(VTKNode n, int space)
-	{		
-		//Show the node
-
+	{	
 		//TODO der block kann als disposable implementiert werden
 
 		//Change color of the node if it is the selected one

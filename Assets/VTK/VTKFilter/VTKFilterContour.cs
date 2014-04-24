@@ -22,7 +22,7 @@ public class VTKFilterContour : VTKFilter
 		selectedDataArray = 0;
 	}
 
-	public override void ValidateInput()
+	protected override void ValidateInput()
 	{
 		string[] dataArrays = gameObject.GetComponent<VTKProperties>().dataArrays;
 		if(selectedDataArray < 0)
@@ -37,15 +37,38 @@ public class VTKFilterContour : VTKFilter
 		if (numContours > 30)
 			numContours = 30;
 
+		/* TODO die reichweiten sollten schon hier abgefragt und gesetzt werden, dass für so aber zu
+		  *abstürtzen
+		  */
+		//Get allowed data range
+		string dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
+		dataArray = dataArray.Remove(dataArray.IndexOf("[") - 1);
+
+		vtkDataSet dataSet = vtkDataSet.SafeDownCast (node.parent.filter.vtkFilter.GetOutputDataObject (0));
+			
+		if(dataSet != null)
+		{
+			vtkPointData pointData = dataSet.GetPointData();
+			if(pointData != null)
+			{
+				pointData.SetActiveScalars(dataArray);
+				dataRange = pointData.GetScalars().GetRange();
+
+				// Sets initial range
+				if(range == Vector2.zero)
+					range = new Vector2((float)dataRange[0], (float)dataRange[1]);
+			}
+		}
+		
 		// Check for allowed data range
 		if (range.x < dataRange[0])
 			range.x = (float)dataRange[0];
 		if (range.x > dataRange[1])
 			range.x = (float)dataRange[1];
-		if (range.y > dataRange[1])
-			range.y = (float) dataRange[1];
 		if (range.y < dataRange[0])
 			range.y = (float) dataRange[0];
+		if (range.y > dataRange[1])
+			range.y = (float) dataRange[1];
 	}
 	
 	public override void SetPlaymodeParameters()
@@ -56,30 +79,20 @@ public class VTKFilterContour : VTKFilter
 		playmodeParameters.Add (new PlaymodeParameter("range", "Vector2", 1.0f));
 	}
 
-	public override void UpdateFilter(vtkAlgorithm input)
+	protected override void CalculateFilter()
 	{
-		vtkFilter = vtkContourFilter.New ();
+		outputType = VTK.DataType.PolyData;
 
+		vtkFilter = vtkContourFilter.New ();
+		
 		string dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
 		dataArray = dataArray.Remove(dataArray.IndexOf("[") - 1);
-		
-		vtkFilter.SetInputConnection(input.GetOutputPort());
-		vtkDataSet dataSet = vtkDataSet.SafeDownCast (input.GetOutputDataObject (0));
-		vtkFilter.SetInputArrayToProcess(0, 0, 0, (int)vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, dataArray);
-		
-		if(dataSet != null)
-		{
-			vtkPointData pointData = dataSet.GetPointData();
-			if(pointData != null)
-			{
-				pointData.SetActiveScalars(dataArray);
-				dataRange = pointData.GetScalars().GetRange();
-				// Sets initial range
-				if(range == Vector2.zero)
-					range = new Vector2((float)dataRange[0], (float)dataRange[1]);
-			}
-		}
-		
+
+		vtkFilter.SetInputConnection(node.parent.filter.vtkFilter.GetOutputPort());
+			
+		vtkFilter.SetInputArrayToProcess(0, 0, 0, 
+			(int)vtkDataObject.FieldAssociations.FIELD_ASSOCIATION_POINTS, dataArray);
+
 		((vtkContourFilter)vtkFilter).GenerateValues(numContours, range.x, range.y);
 		((vtkContourFilter)vtkFilter).ComputeScalarsOn();
 		vtkFilter.Update();

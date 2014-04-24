@@ -22,7 +22,6 @@ public class EditorVTKFilterTransform : EditorVTKFilter
 		((VTKFilterTransform)script).rotateX = EditorGUILayout.FloatField (((VTKFilterTransform)script).rotateX);
 		((VTKFilterTransform)script).rotateY = EditorGUILayout.FloatField (((VTKFilterTransform)script).rotateY);
 		((VTKFilterTransform)script).rotateZ = EditorGUILayout.FloatField (((VTKFilterTransform)script).rotateZ);
-
 		EditorGUILayout.EndHorizontal ();
 
 		//Scale
@@ -31,5 +30,6 @@ public class EditorVTKFilterTransform : EditorVTKFilter
 		((VTKFilterTransform)script).scaleX = EditorGUILayout.FloatField (((VTKFilterTransform)script).scaleX);
 		((VTKFilterTransform)script).scaleY = EditorGUILayout.FloatField (((VTKFilterTransform)script).scaleY);
 		((VTKFilterTransform)script).scaleZ = EditorGUILayout.FloatField (((VTKFilterTransform)script).scaleZ);
+		EditorGUILayout.EndHorizontal ();
 	}
 }

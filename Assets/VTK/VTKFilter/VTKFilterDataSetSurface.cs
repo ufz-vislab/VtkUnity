@@ -7,13 +7,15 @@ public class VTKFilterDataSetSurface : VTKFilter
 {
 	public override void SetPlaymodeParameters (){}
 
-	public override void ValidateInput(){}
+	protected override void ValidateInput(){}
 
-	public override void UpdateFilter(Kitware.VTK.vtkAlgorithm input)
+	protected override void CalculateFilter()
 	{
+		outputType = VTK.DataType.PolyData;
+		
 		vtkFilter = Kitware.VTK.vtkDataSetSurfaceFilter.New ();
 		
-		vtkFilter.SetInputConnection(input.GetOutputPort());
+		vtkFilter.SetInputConnection(node.parent.filter.vtkFilter.GetOutputPort());
 		
 		vtkFilter.Update ();
 	}

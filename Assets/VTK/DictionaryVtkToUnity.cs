@@ -30,6 +30,7 @@ public class DictionaryVtkToUnity
 			values[index] = value;
 		}
 	}
+	
 	public void Add(string key, VtkToUnity value)
 	{
 		keys.Add (key);

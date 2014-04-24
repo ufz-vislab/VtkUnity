@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Reflection;
 
@@ -44,18 +44,10 @@ public class ControllerGameObject : MonoBehaviour
 	public int activeParameter = 0;
 	public int activeIndex = 0;
 
-	public void Start()
-	{
-		Initialize ();
-	}
-
 	public void Initialize ()
 	{
 		this.flyStick = GameObject.Find ("FlyStick");
 		this.root = gameObject.transform.parent.gameObject.GetComponent<VTKRoot> ();
-		
-		string filterName = gameObject.name.Remove (0, gameObject.name.LastIndexOf (",") + 1);		
-		this.node = root.root.GetNode(filterName);
 		
 		this.filter = node.filter;
 		this.properties = node.properties;
