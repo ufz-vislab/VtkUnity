@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 using System.Collections.Generic;
 using Kitware.VTK;
 
@@ -294,6 +295,33 @@ public class VTKRoot : MonoBehaviour
 			cg.node = node;
 			cg.Initialize();
 			*/
+		}
+	}
+
+	[ContextMenu("Reset filters")]
+	void ResetFilters()
+	{
+		if(rootNode.hasChildren)
+		{
+			ResetFilter(rootNode);
+
+			foreach(VTKNode child in rootNode.children)
+			{
+				child.UpdateFilter();
+			}
+		}
+	}
+
+	private void ResetFilter(VTKNode node)
+	{
+		node.filter.Reset();
+
+		if(node.hasChildren)
+		{
+			foreach(VTKNode child in node.children)
+			{
+				ResetFilter(child);
+			}
 		}
 	}
 

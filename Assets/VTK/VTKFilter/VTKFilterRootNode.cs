@@ -4,6 +4,8 @@ using System.Collections;
 [ExecuteInEditMode]
 public class VTKFilterRootNode : VTKFilter 
 {
+	public override void Reset(){}
+	
 	public override void SetPlaymodeParameters(){}
 
 	protected override void ValidateInput(){}

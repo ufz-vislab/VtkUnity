@@ -22,6 +22,8 @@ public abstract class VTKFilter : MonoBehaviour
 
 	public abstract void SetPlaymodeParameters();
 
+	public abstract void Reset();
+
 	public virtual void UpdateInput()
 	{
 		ValidateInput ();

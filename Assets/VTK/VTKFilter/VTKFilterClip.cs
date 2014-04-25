@@ -5,7 +5,7 @@ using Kitware.VTK;
 public class VTKFilterClip : VTKFilter 
 {
 
-	protected void Reset()
+	public override void Reset()
 	{
 		vtkFilter = vtkClipDataSet.New ();
 	}

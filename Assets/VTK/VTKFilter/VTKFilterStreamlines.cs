@@ -14,7 +14,7 @@ public class VTKFilterStreamlines : VTKFilter
 	[HideInInspector]
 	public int selectedDataArray;
 	
-	protected void Reset()
+	public override void Reset()
 	{
 		center = Vector3.zero;
 		vtkFilter = vtkStreamTracer.New ();

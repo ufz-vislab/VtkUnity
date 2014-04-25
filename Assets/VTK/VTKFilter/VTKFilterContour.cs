@@ -14,7 +14,7 @@ public class VTKFilterContour : VTKFilter
 
 	protected double[] dataRange = new double[2];
 	
-	protected void Reset()
+	public override void Reset()
 	{
 		numContours = 10;
 		range = Vector2.zero;

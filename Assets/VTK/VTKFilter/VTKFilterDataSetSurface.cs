@@ -5,6 +5,8 @@ using Kitware.VTK;
 [ExecuteInEditMode]
 public class VTKFilterDataSetSurface : VTKFilter 
 {
+	public override void Reset(){}
+
 	public override void SetPlaymodeParameters (){}
 
 	protected override void ValidateInput(){}

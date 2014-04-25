@@ -32,6 +32,21 @@ public class VTKFilterTransform : VTKFilter
 	[HideInInspector]
 	public vtkTransform vtkTransform; 
 
+	public override void Reset()
+	{
+		translateX = 0.0f;
+		translateY = 0.0f;
+		translateZ = 0.0f;
+
+		rotateX = 0.0f;
+		rotateY = 0.0f;
+		rotateZ = 0.0f;
+
+		scaleX = 1.0f;
+		scaleY = 1.0f;
+		scaleZ = 1.0f;
+	}
+
 	public override void SetPlaymodeParameters(){}
 
 	protected override void ValidateInput(){}

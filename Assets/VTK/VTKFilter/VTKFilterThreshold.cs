@@ -10,7 +10,7 @@ public class VTKFilterThreshold : VTKFilter
 	[HideInInspector]
 	public int selectedDataArray = 0;
 
-	protected void Reset()
+	public override void Reset()
 	{
 		range = Vector2.zero;
 		vtkFilter = vtkThreshold.New ();

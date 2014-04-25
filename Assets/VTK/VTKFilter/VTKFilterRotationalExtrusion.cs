@@ -16,7 +16,7 @@ public class VTKFilterRotationalExtrusion : VTKFilter
 	[HideInInspector]
 	public bool capping = true;
 
-	protected void Reset ()
+	public override void Reset ()
 	{
 		resolution = 12;
 		angle = 360;
