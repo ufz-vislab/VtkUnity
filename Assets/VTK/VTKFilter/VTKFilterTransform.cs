@@ -74,10 +74,7 @@ public class VTKFilterTransform : VTKFilter
 
 	public void SetTranslation ()
 	{
-		//TODO change to vtk data?
-		gameObject.transform.Translate (translateX, translateY, translateZ);
-
-		//vtkTransform.Translate (translateX, translateY, translateZ);
+		vtkTransform.Translate (translateX, translateY, translateZ);
 	}
 
 	public void SetRotation()
