@@ -10,10 +10,7 @@ public class VTKFilterClip : VTKFilter
 		vtkFilter = vtkClipDataSet.New ();
 	}
 	
-	protected override void ValidateInput ()
-	{
-		//TODO
-	}
+	protected override void ValidateInput (){}
 	
 	public override void SetPlaymodeParameters ()
 	{
@@ -27,7 +24,7 @@ public class VTKFilterClip : VTKFilter
 	protected override void CalculateFilter ()
 	{
 		outputType = VTK.DataType.PolyData;
-		
+
 		vtkPlane plane = vtkPlane.New ();
 		plane.SetOrigin (0, 75, -4000);
 		plane.SetNormal (1.0, 0.0, 0.0);
@@ -35,15 +32,17 @@ public class VTKFilterClip : VTKFilter
 		if(node.parent.filter.outputType == VTK.DataType.PolyData)
 		{
 			vtkFilter = vtkClipPolyData.New();
+			vtkFilter.SetInputConnection (node.parent.filter.vtkFilter.GetOutputPort());
+			((vtkClipPolyData)vtkFilter).SetClipFunction (plane);
 		}
 
 		if(node.parent.filter.outputType == VTK.DataType.UnstructuredGrid)
 		{
 			vtkFilter = vtkClipDataSet.New();
+			vtkFilter.SetInputConnection (node.parent.filter.vtkFilter.GetOutputPort());
+			((vtkClipDataSet)vtkFilter).SetClipFunction (plane);
 		}
-
-		vtkFilter.SetInputConnection (node.parent.filter.vtkFilter.GetOutputPort());
-		((vtkClipDataSet)vtkFilter).SetClipFunction (plane);
+		
 		vtkFilter.Update ();
 	}	
 }

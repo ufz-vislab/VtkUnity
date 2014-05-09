@@ -88,9 +88,6 @@ public class VTKFilterContour : VTKFilter
 		outputType = VTK.DataType.PolyData;
 
 		vtkFilter = vtkContourFilter.New ();
-		
-		//dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
-		//ataArray = dataArray.Remove(dataArray.IndexOf("[") - 1);
 
 		vtkFilter.SetInputConnection(node.parent.filter.vtkFilter.GetOutputPort());
 			
