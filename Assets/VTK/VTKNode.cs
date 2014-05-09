@@ -96,8 +96,6 @@ public class VTKNode
 		if(isRoot)
 			return;
 
-		Debug.LogWarning("UpdateFilter: " + filter.name);
-
 		//Update this filter
 		filter.UpdateInput();
 

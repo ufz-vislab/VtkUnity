@@ -11,6 +11,10 @@ public class VTKFilterContour : VTKFilter
 	public Vector2 range;
 	[HideInInspector]
 	public int selectedDataArray = 0;
+	[HideInInspector]
+	public string dataArray = "";
+	[HideInInspector]
+	public string oldDataArray = "";
 
 	protected double[] dataRange = new double[2];
 	
@@ -37,11 +41,8 @@ public class VTKFilterContour : VTKFilter
 		if (numContours > 30)
 			numContours = 30;
 
-		/* TODO die reichweiten sollten schon hier abgefragt und gesetzt werden, dass für so aber zu
-		  *abstürtzen
-		  */
 		//Get allowed data range
-		string dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
+		dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
 		dataArray = dataArray.Remove(dataArray.IndexOf("[") - 1);
 
 		vtkDataSet dataSet = vtkDataSet.SafeDownCast (node.parent.filter.vtkFilter.GetOutputDataObject (0));
@@ -55,8 +56,11 @@ public class VTKFilterContour : VTKFilter
 				dataRange = pointData.GetScalars().GetRange();
 
 				// Sets initial range
-				if(range == Vector2.zero)
+				if(range == Vector2.zero || dataArray == "" || dataArray != oldDataArray)
+				{
+					oldDataArray = dataArray;
 					range = new Vector2((float)dataRange[0], (float)dataRange[1]);
+				}
 			}
 		}
 		
@@ -85,8 +89,8 @@ public class VTKFilterContour : VTKFilter
 
 		vtkFilter = vtkContourFilter.New ();
 		
-		string dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
-		dataArray = dataArray.Remove(dataArray.IndexOf("[") - 1);
+		//dataArray = gameObject.GetComponent<VTKProperties>().dataArrays[selectedDataArray];
+		//ataArray = dataArray.Remove(dataArray.IndexOf("[") - 1);
 
 		vtkFilter.SetInputConnection(node.parent.filter.vtkFilter.GetOutputPort());
 			

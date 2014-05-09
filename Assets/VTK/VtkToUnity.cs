@@ -67,8 +67,10 @@ public class VtkToUnity
 
 	~VtkToUnity()
 	{
+		/*
 		foreach (Material mat in go.GetComponent<Renderer>().materials)
 			Object.DestroyImmediate(mat);			
+		*/
 	}
 
 	public void Update()
@@ -182,7 +184,6 @@ public class VtkToUnity
 		Kitware.VTK.vtkDataArray vtkTexCoords = pd.GetPointData().GetTCoords();
 		if (vtkTexCoords != null)
 		{
-			Debug.LogWarning("B");
 			numCoords = vtkTexCoords.GetNumberOfTuples();
 			uvs = new Vector2[numCoords];
 			for (int i = 0; i < numCoords; ++i)
@@ -192,8 +193,6 @@ public class VtkToUnity
 			}
 			mesh.uv = uvs;
 		}
-		else
-			Debug.LogWarning("Texturekoordinaten null"); 
 
 		// Vertex colors
 		if (numTriangles > 0 && colorArray != null)
