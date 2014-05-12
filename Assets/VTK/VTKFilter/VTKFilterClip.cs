@@ -4,10 +4,28 @@ using Kitware.VTK;
 
 public class VTKFilterClip : VTKFilter 
 {
+	[HideInInspector]
+	public float originX = 0.0f;
+	[HideInInspector]
+	public float originY = 0.0f;
+	[HideInInspector]
+	public float originZ = 0.0f;
+	[HideInInspector]
+	public float normalX = 0.0f;
+	[HideInInspector]
+	public float normalY = 0.0f;
+	[HideInInspector]
+	public float normalZ = 0.0f;
 
 	public override void Reset()
 	{
-		vtkFilter = vtkClipDataSet.New ();
+		originX = 0.0f;
+		originY = 0.0f;
+		originZ = 0.0f;
+
+		normalX = 0.0f;
+		normalY = 0.0f;
+		normalZ = 0.0f;
 	}
 	
 	protected override void ValidateInput (){}
@@ -26,8 +44,8 @@ public class VTKFilterClip : VTKFilter
 		outputType = VTK.DataType.PolyData;
 
 		vtkPlane plane = vtkPlane.New ();
-		plane.SetOrigin (0, 75, -4000);
-		plane.SetNormal (1.0, 0.0, 0.0);
+		plane.SetOrigin (originX, originY, originZ);
+		plane.SetNormal (normalX, normalY, normalZ);
 
 		if(node.parent.filter.outputType == VTK.DataType.PolyData)
 		{
