@@ -50,7 +50,6 @@ public class VTKRoot : MonoBehaviour
 
 	public void Initialize()
 	{
-		Debug.LogWarning("Initialize");
 		string rootName = VTK.GetFileName (filepath);
 		gameObject.name =  rootName;
 
@@ -274,7 +273,8 @@ public class VTKRoot : MonoBehaviour
 
 	public void CreateGameObject(VTKNode node)
 	{
-		Debug.Log ("Create gameobject " + VTK.GetGameObjectName(node));
+		string gameObjectName = VTK.GetGameObjectName(node);
+		Debug.Log ("Create gameobject " + gameObjectName);
 		
 		if(node.filter.outputType == VTK.DataType.PolyData)
 		{
@@ -286,15 +286,17 @@ public class VTKRoot : MonoBehaviour
 			vtu.Update ();
 
 			gameObjects.Add(vtu.go.name, vtu);
-			
-			//Add mesh for controller support
-			/*
-			MeshCollider mc = go.AddComponent<MeshCollider>();
-			mc.isTrigger = true;
-			ControllerGameObject cg = go.AddComponent<ControllerGameObject>();
-			cg.node = node;
-			cg.Initialize();
-			*/
+
+			if(node.filter.outputType == VTK.DataType.PolyData)
+			{
+				//Add mesh for controller support
+				GameObject go = FindGameObject(gameObjectName);
+				MeshCollider mc = go.AddComponent<MeshCollider>();
+				mc.isTrigger = true;
+				ControllerGameObject cg = go.AddComponent<ControllerGameObject>();
+				cg.node = node;
+				cg.Initialize();
+			}
 		}
 	}
 
@@ -330,6 +332,15 @@ public class VTKRoot : MonoBehaviour
 		if (name == VTK.GetGameObjectName (rootNode))
 						return gameObject;
 
-		return gameObject.transform.Find (name).gameObject;
+		Transform found = gameObject.transform.Find (name);
+
+		if(found != null)
+		{
+			return found.gameObject;
+		}
+		else
+		{
+			return null;
+		}
 	}
 }

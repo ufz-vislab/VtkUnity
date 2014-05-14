@@ -1,14 +1,6 @@
 using UnityEngine;
 using System.Collections;
 
-/*
- * "a": Select properties or filter
- * "b": Select parameter
- * "c": Select index (if parameter is a vector)
- * "l" / "r": Select
- * "u" / "d": increase / decrease selected parameter
- * */
-
 [System.Serializable]
 public class VtkToUnity
 {

@@ -2,9 +2,19 @@ using UnityEngine;
 using System.Collections;
 using System.Reflection;
 
+/*
+ * "a": Select properties or filter
+ * "b": Select parameter
+ * "c": Select index (if parameter is a vector)
+ * "l" / "r": Select
+ * "u" / "d": increase / decrease selected parameter
+ * */
+
 [ExecuteInEditMode]
 public class ControllerGameObject : MonoBehaviour 
 {
+	public bool showGameObject = true;
+	
 	[HideInInspector]
 	public enum mode
 	{

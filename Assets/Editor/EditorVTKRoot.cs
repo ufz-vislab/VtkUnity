@@ -96,8 +96,6 @@ public class EditorVTKRoot : Editor
 	 * */
 	private void CreateSubTree(VTKNode n, int space)
 	{	
-		//TODO der block kann als disposable implementiert werden
-
 		//Change color of the node if it is the selected one
 		if(script.activeNode == n)
 			treeNodeStyle.normal.textColor = Color.green;
@@ -107,6 +105,26 @@ public class EditorVTKRoot : Editor
 		if (GUILayout.Button (n.name, treeNodeStyle))
 		{
 			script.SetActiveNode(n);
+		}
+
+		GameObject go = script.FindGameObject(VTK.GetGameObjectName(n));
+
+		if(go != null)
+		{
+			ControllerGameObject cgo = go.GetComponent<ControllerGameObject>();
+			if(cgo != null)
+			{
+				cgo.showGameObject = EditorGUILayout.Toggle(cgo.showGameObject);
+
+				if(cgo.showGameObject)
+				{
+					go.renderer.enabled = true;
+				}
+				else
+				{
+					go.renderer.enabled = false;
+				}
+			}
 		}
 		EditorGUILayout.EndHorizontal();
 
