@@ -30,6 +30,7 @@ public class VTKNode
 				}
 			}
 	}
+	public int number = 0; //Needed to generate filternumber
 
 	public VTKNode(VTKFilter filter, VTKNode parent, VTKProperties properties)
 	{
@@ -161,9 +162,6 @@ public class VTKNode
 		}
 		
 		vtkToUnity.Update ();
-		
-		//TODO dont use a fixed position
-		vtkToUnity.go.transform.Translate(0f, 0f, 0f);
 	}
 
 	//TODO brauch ich das überhaupt noch?
@@ -212,11 +210,50 @@ public class VTKNode
 		return found;
 	}
 
-	//TODO beim löschen von kindern wird die nummer in bestimmten fällen nicht richtig gesetzt
-	public int GetFilterNumber()
+		public int GetFilterNumber()
 	{
-		int number = filter.gameObject.GetComponents (filter.GetType ()).Length;
-		
-		return number;
+		string name = GetFilterTypeAsString();
+		int count = CountFilter(name, filter.gameObject.GetComponent<VTKRoot>().rootNode);
+
+		if(count > number)
+		{
+			return count;
+		}
+		else
+		{
+			return number;
+		}
+	}
+
+	public int CountFilter(string name, VTKNode node)
+	{
+		if(!node.isRoot)
+		{
+			int nodeNumber = int.Parse(node.name.Remove(0, node.GetFilterTypeAsString().Length)) + 1;
+
+			if(number < nodeNumber)
+			{
+				number = nodeNumber;
+			}
+		}
+
+		int count = 0;
+
+		if(node.GetFilterTypeAsString() == name)
+		{
+			count++;
+		}
+
+		foreach(VTKNode child in node.children)
+		{
+			count += CountFilter(name, child);
+		}
+
+		return count;
+	}
+
+	public string GetFilterTypeAsString()
+	{
+		return filter.GetType ().ToString ().Remove (0, 9);
 	}
 }

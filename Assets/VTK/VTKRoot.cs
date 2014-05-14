@@ -152,12 +152,15 @@ public class VTKRoot : MonoBehaviour
 		}
 
 		//Do it for the kids
-		foreach (VTKNode child in node.children)
+		if(node.hasChildren)
 		{
-			//Set parent reference
-			child.parent = node;
+			foreach (VTKNode child in node.children)
+			{
+				//Set parent reference
+				child.parent = node;
 
-			PreloadNode(child);
+				PreloadNode(child);
+			}
 		}
 	}
 
