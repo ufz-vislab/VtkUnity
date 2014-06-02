@@ -72,7 +72,6 @@ public class VtkToUnity
 
 	void PolyDataToMesh()
 	{
-		// mesh.MarkDynamic();
 		mesh.Clear();
 
 		triangleFilter.Update();
@@ -89,12 +88,37 @@ public class VtkToUnity
 		}
 		mesh.vertices = vertices;
 
+		// Texture coordinates
+		Kitware.VTK.vtkDataArray vtkTexCoords = pd.GetPointData().GetTCoords();
+		if (vtkTexCoords != null)
+		{
+			int numCoords = vtkTexCoords.GetNumberOfTuples();
+			Vector2[] uvs = new Vector2[numCoords];
+			for (int i = 0; i < numCoords; ++i)
+			{
+				double[] texCoords = vtkTexCoords.GetTuple2(i);
+				uvs[i] = new Vector2((float)texCoords[0], (float)texCoords[1]);
+			}
+			mesh.uv = uvs;
+		}
+
+		// Vertex colors
+		if (numVertices > 0 && colorArray != null)
+		{
+			Color32[] colors = new Color32[numVertices];
+
+			for (int i = 0; i < numVertices; ++i)
+				colors[i] = GetColor32AtIndex(i);
+
+			mesh.colors32 = colors;
+		}
+
 		// Triangles / Cells
 		int numTriangles = pd.GetNumberOfPolys();
-		int[] triangles = new int[numTriangles * 3];
 		Kitware.VTK.vtkCellArray polys = pd.GetPolys();
 		if (polys.GetNumberOfCells() > 0)
 		{
+			int[] triangles = new int[numTriangles * 3];
 			int prim = 0;
 			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 			polys.InitTraversal();
@@ -105,37 +129,31 @@ public class VtkToUnity
 
 				++prim;
 			}
+			mesh.SetTriangles(triangles, 0);
+			mesh.RecalculateNormals();
+			mesh.RecalculateBounds();
+			return;
 		}
-		mesh.triangles = triangles;
-
+		
 		// Lines
 		Kitware.VTK.vtkCellArray lines = pd.GetLines();
 		if (lines.GetNumberOfCells() > 0)
 		{
-			Debug.LogWarning("lines");
+			ArrayList idList = new ArrayList();
 			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 			lines.InitTraversal();
-			int prim = 0;
 			while (lines.GetNextCell(pts) != 0)
 			{
-				Color lineColor = solidColor;
-				if (colorArray != null)
+				for (int i = 0; i < pts.GetNumberOfIds() - 1; ++i)
 				{
-					if (colorDataType == VtkColorType.CELL_DATA)
-						lineColor = GetColorAtIndex(prim);
-					else if (colorDataType == VtkColorType.POINT_DATA)
-						lineColor = GetColorAtIndex(pts.GetId(0));
+					idList.Add(pts.GetId(i));
+					idList.Add(pts.GetId(i+1));
 				}
-
-				Vector3[] linePoints = new Vector3[2];
-				linePoints[0] = vertices[pts.GetId(0)];
-				linePoints[1] = vertices[pts.GetId(1)];
-				Vectrosity.VectorLine line = new Vectrosity.VectorLine(name + "-Line", 
-					linePoints, lineColor, null, 50.0f);
-				//line.Draw3DAuto(go.transform);
-				line.Draw3D(go.transform);
-				++prim;
 			}
+
+			mesh.SetIndices(idList.ToArray(typeof(int)) as int[], MeshTopology.Lines, 0);
+			mesh.RecalculateBounds();
+			return;
 		}
 
 		// Points
@@ -143,58 +161,20 @@ public class VtkToUnity
 		int numPointCells = points.GetNumberOfCells();
 		if (numPointCells > 0)
 		{
-			ArrayList list = new ArrayList();
-			ArrayList colorList = new ArrayList();
+			ArrayList idList = new ArrayList();
 			Kitware.VTK.vtkIdList pts = Kitware.VTK.vtkIdList.New();
 			points.InitTraversal();
 			while (points.GetNextCell(pts) != 0)
 			{
-				ArrayList pointsList = new ArrayList();
-				ArrayList colorsList = new ArrayList();
 				for (int i = 0; i < pts.GetNumberOfIds(); ++i)
 				{
-					pointsList.Add(vertices[pts.GetId(i)]);
-					Color pointColor = solidColor;
-					if (colorArray != null && colorDataType == VtkColorType.POINT_DATA)
-						pointColor = GetColorAtIndex(pts.GetId(i));
-					colorsList.Add(pointColor);
+					idList.Add(pts.GetId(i));
 				}
-				list.AddRange(pointsList);
-				colorList.AddRange(colorsList);
 			}
-			Vectrosity.VectorPoints pnt =
-					new Vectrosity.VectorPoints(name + "-Point " + list.Count,
-						list.ToArray(typeof(Vector3)) as Vector3[],
-						colorList.ToArray(typeof(Color)) as Color[], null, 1f);
-			//pnt.Draw3DAuto(go.transform);
-			pnt.Draw3D(go.transform);
-		}
 
-		// Texture coordinates
-		Vector2[] uvs;
-		int numCoords = 0;
-		Kitware.VTK.vtkDataArray vtkTexCoords = pd.GetPointData().GetTCoords();
-		if (vtkTexCoords != null)
-		{
-			numCoords = vtkTexCoords.GetNumberOfTuples();
-			uvs = new Vector2[numCoords];
-			for (int i = 0; i < numCoords; ++i)
-			{
-				double[] texCoords = vtkTexCoords.GetTuple2(i);
-				uvs[i] = new Vector2((float)texCoords[0], (float)texCoords[1]);
-			}
-			mesh.uv = uvs;
-		}
-
-		// Vertex colors
-		if (numTriangles > 0 && colorArray != null)
-		{
-			Color32[] colors = new Color32[numVertices];
-
-			for (int i = 0; i < numVertices; ++i)
-				colors[i] = GetColor32AtIndex(i);
-
-			mesh.colors32 = colors;
+			mesh.SetIndices(idList.ToArray(typeof(int)) as int[], MeshTopology.Points, 0);
+			mesh.RecalculateBounds();
+			return;
 		}
 
 		//Debug.Log("Number of point data arrays: " + pd.GetPointData().GetNumberOfArrays());
@@ -202,10 +182,6 @@ public class VtkToUnity
 		//Debug.Log("Number of cell data arrays: " + pd.GetCellData().GetNumberOfArrays());
 		//Debug.Log("  - " + pd.GetCellData().GetArrayName(0));
 		//Debug.Log(name + " - Vertices: " + numPoints + ", triangle: " + numTriangles + ", UVs: " + numCoords);
-
-		mesh.RecalculateNormals();
-		mesh.RecalculateBounds();
-		//mesh.Optimize();
 	}
 
 	private byte[] GetByteColorAtIndex(int i)
