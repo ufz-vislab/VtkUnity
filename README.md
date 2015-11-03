@@ -4,6 +4,7 @@ Brings scientific visualization into the Unity game engine. Goal of this project
 
 ## Prerequisites
 
+- Unity 4.6.x
 - Windows only
 - Install [ActiViz 5.8 x32][1]
 - Add the *ActiViz Installation Dir/bin* to the `PATH` environment variable
